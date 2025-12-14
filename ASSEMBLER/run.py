@@ -6,7 +6,8 @@ Generates .mem file compatible with Quartus/ModelSim from the .asm source
 
 import os
 import sys
-from ASSEMBLER import Assembler
+from assembler import Assembler
+
 
 def main():
     print("32-bit Assembly to Memory Formatter")

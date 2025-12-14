@@ -2,7 +2,8 @@
 """
 Assembler.py
 
-32-bit Assembler
+32-bit Assembler for Phase 2 Instruction Set Architecture (Custom Team Edition)
+Generates ModelSim/Quartus compatible .mem output from .asm files.
 
 Supports:
 - Full instruction set from phase2.docx
@@ -10,6 +11,8 @@ Supports:
 - Label resolution (2-pass)
 - Immediate values with # or direct (hex/dec)
 - Memory layout in 4-word-per-line format
+
+Authors: Razan Megahed, Alaa Haytham, Abdelrahman Mohamed, Abdelrahman Zakaria
 """
 
 import re
@@ -17,21 +20,16 @@ import re
 class Assembler:
     def __init__(self):
         self.opcodes = {
-            # R-Type + Single ops
+            #r-type opcodes
             'NOP':  '0000000', 'HLT':  '0000001', 'IN':   '0001001', 'OUT':  '0001010',
             'MOV':  '0001011', 'SWAP': '0001101', 'LDM':  '0001110',
-
-            # ALU ops
+            #ALU opcodes
             'SETC': '0010000', 'ADD':  '0011001', 'SUB':  '0011010', 'AND':  '0011011',
             'NOT':  '0011100', 'IADD': '0011101', 'INC':  '0011110',
-
-            # Memory
+            #MEMORY OPERATION
             'PUSH': '1000101', 'POP':  '1001100', 'LDD':  '1001010', 'STD':  '1000011',
-
-            # Branch
             'JZ':   '0100000', 'JN':   '0100001', 'JC':   '0100010', 'JMP':  '0100011',
-            #branch -memory
-            
+            #BRANCH MEMORY
             'CALL': '1100001', 'RET':  '1100000', 'INT':  '1100011', 'RTI':  '1100010'
         }
 
@@ -44,9 +42,9 @@ class Assembler:
 
     def parse_hex(self, value):
         value = value.strip()
-        if value.startswith('0x'):
-            return int(value, 16)
-        return int(value)
+        if value.startswith('0x') or value.startswith('#0x'):
+            return int(value.replace('#', ''), 16)
+        return int(value.replace('#', ''))
 
     def reg(self, name):
         name = name.strip().upper()
@@ -57,7 +55,6 @@ class Assembler:
         raise ValueError(f"Invalid register: {name}")
 
     def imm(self, val):
-        val = val.lstrip('#')
         return format(self.parse_hex(val) & 0xFFFF, '016b')
 
     def first_pass(self, code):
@@ -92,36 +89,56 @@ class Assembler:
 
             rsrc1 = rsrc2 = rdst = '000'
             imm = '0' * 16
-            parts = [a.strip() for a in re.split(r',\s*', args)] if args else []
 
-            if op in ['NOP', 'HLT', 'SETC', 'RET', 'RTI']:
+            parts = [p.strip() for p in args.split(',')] if args else []
+
+            # Handle memory format offset(Rx) — case insensitive
+            new_parts = []
+            for part in parts:
+                part = part.strip()
+                if '(' in part and ')' in part:
+                    match = re.match(r'(#?\d+|#?0x[\da-fA-F]+)\((r\d)\)', part, re.IGNORECASE)
+                    if not match:
+                        raise ValueError(f"Invalid memory operand format: {part}")
+                    offset, reg = match.groups()
+                    reg = reg.upper()
+                    new_parts.extend([reg, offset])
+                else:
+                    new_parts.append(part)
+            parts = new_parts
+
+            if op in ['NOP', 'HLT', 'SETC', 'RET', 'RTI', 'JZ', 'JN', 'JC', 'JMP', 'CALL', 'INT']:
                 pass
-            elif op in ['IN', 'POP']:
+            elif op in ['IN', 'POP', 'PUSH']:
                 rdst = self.reg(parts[0])
-            elif op in ['OUT', 'PUSH']:
-                rsrc1 = self.reg(parts[0])
+            elif op == 'OUT':
+                pass
             elif op in ['MOV', 'SWAP']:
-                rdst, rsrc1 = self.reg(parts[0]), self.reg(parts[1])
+                rdst = self.reg(parts[0])
+                rsrc1 = self.reg(parts[1])
             elif op == 'LDM':
-                rdst, imm = self.reg(parts[0]), self.imm(parts[1])
+                rdst = self.reg(parts[0])
+                imm = self.imm(parts[1])
             elif op in ['ADD', 'SUB', 'AND']:
-                rdst, rsrc1, rsrc2 = self.reg(parts[0]), self.reg(parts[1]), self.reg(parts[2])
+                rdst = self.reg(parts[0])
+                rsrc1 = self.reg(parts[1])
+                rsrc2 = self.reg(parts[2])
             elif op in ['NOT', 'INC']:
-                rdst = rsrc1 = self.reg(parts[0])
+                rdst = self.reg(parts[0])
             elif op == 'IADD':
-                rdst, rsrc1, imm = self.reg(parts[0]), self.reg(parts[1]), self.imm(parts[2])
+                rdst = self.reg(parts[0])
+                rsrc1 = self.reg(parts[1])
+                imm = self.imm(parts[2])
             elif op == 'LDD':
-                rdst, rsrc1, imm = self.reg(parts[0]), self.reg(parts[1]), self.imm(parts[2])
+                rsrc1 = self.reg(parts[0])
+                rdst = self.reg(parts[1])
+                imm = self.imm(parts[2])
             elif op == 'STD':
-                rsrc1, rsrc2, imm = self.reg(parts[0]), self.reg(parts[1]), self.imm(parts[2])
-            elif op in ['JZ', 'JN', 'JC', 'JMP', 'CALL']:
-                target = parts[0]
-                val = self.labels.get(target, None)
-                imm = self.imm(val if val is not None else target)
-            elif op == 'INT':
-                imm = self.imm(parts[0])
+                rsrc1 = self.reg(parts[0])
+                rsrc2 = self.reg(parts[1])
+                imm = self.imm(parts[2])
 
-            instr = f"{opcode}{rsrc1}{rsrc2}{rdst}{'00'}{imm}"
+            instr = f"{opcode}{rsrc1}{rsrc2}{rdst}00{imm}"
             self.memory_map[addr] = instr
 
     def generate_output(self):
