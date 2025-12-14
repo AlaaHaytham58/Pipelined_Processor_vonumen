@@ -2,7 +2,7 @@
 """
 Assembler.py
 
-32-bit Assembler for Phase 2 Instruction Set Architecture 
+32-bit Assembler
 
 Supports:
 - Full instruction set from phase2.docx
