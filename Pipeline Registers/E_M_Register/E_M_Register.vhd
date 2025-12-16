@@ -9,7 +9,7 @@ entity E_M_Register is
 
         MemRead       : in STD_LOGIC;
         MEM_OP        : in STD_LOGIC;
-        MEM_SEL       : in STD_LOGIC;
+        MEM_SEL       : in STD_LOGIC_VECTOR(1 downto 0);
         MEM_R         : in STD_LOGIC;
         ALURes        : in STD_LOGIC_VECTOR(31 downto 0);
         Raddr1        : in STD_LOGIC_VECTOR(2 downto 0);
@@ -17,10 +17,10 @@ entity E_M_Register is
         Rdst          : in STD_LOGIC_VECTOR(2 downto 0);
         Rdata1        : in STD_LOGIC_VECTOR(31 downto 0);
         Rdata2        : in STD_LOGIC_VECTOR(31 downto 0);
-        WriteData     : in STD_LOGIC;
+        WriteData     : in STD_LOGIC_VECTOR(1 downto 0);
         WE1           : in STD_LOGIC;
         WE2           : in STD_LOGIC;
-        IN_Port       : in STD_LOGIC;
+        IN_Port       : in STD_LOGIC_VECTOR(31 downto 0);
         PCSRC         : in STD_LOGIC;
         STACK         : in STD_LOGIC;
         BR_ADDR       : in STD_LOGIC_VECTOR(31 downto 0);
@@ -33,7 +33,7 @@ entity E_M_Register is
         -- Outputs
         MemRead_Out   : out STD_LOGIC;
         MEM_OP_Out    : out STD_LOGIC;
-        MEM_SEL_Out   : out STD_LOGIC;
+        MEM_SEL_Out   : out STD_LOGIC_VECTOR(1 downto 0);
         MEM_R_Out     : out STD_LOGIC;
         ALURes_Out    : out STD_LOGIC_VECTOR(31 downto 0);
         Raddr1_Out    : out STD_LOGIC_VECTOR(2 downto 0);
@@ -45,11 +45,11 @@ entity E_M_Register is
         BR_ADDR_Out   : out STD_LOGIC_VECTOR(31 downto 0);
         Rdata1_Out    : out STD_LOGIC_VECTOR(31 downto 0);
         Rdata2_Out    : out STD_LOGIC_VECTOR(31 downto 0);
-        WriteData_Out : out STD_LOGIC;
+        WriteData_Out : out STD_LOGIC_VECTOR(1 downto 0);
         WE1_Out       : out STD_LOGIC;
         WE2_Out       : out STD_LOGIC;
         MEM_W_Out     : out STD_LOGIC;
-        IN_Port_Out   : out STD_LOGIC;
+        IN_Port_Out   : out STD_LOGIC_VECTOR(31 downto 0);
         Imm_Out       : out STD_LOGIC_VECTOR(15 downto 0);
         OUT_EN_Out    : out STD_LOGIC
     );
@@ -59,7 +59,7 @@ architecture Behavioral of E_M_Register is
     -- Internal registers to store input values
         signal MemRead_Reg   : STD_LOGIC := '0';
         signal MEM_OP_Reg    : STD_LOGIC := '0';
-        signal MEM_SEL_Reg   : STD_LOGIC := '0';
+        signal MEM_SEL_Reg   : STD_LOGIC_VECTOR(1 downto 0) := (others => '0');
         signal MEM_R_Reg     : STD_LOGIC := '0';
         signal ALURes_Reg    : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         signal Raddr1_Reg    : STD_LOGIC_VECTOR(2 downto 0)  := (others => '0');
@@ -71,11 +71,11 @@ architecture Behavioral of E_M_Register is
         signal BR_ADDR_Reg   : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         signal Rdata1_Reg    : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         signal Rdata2_Reg    : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
-        signal WriteData_Reg : STD_LOGIC := '0';
+        signal WriteData_Reg : STD_LOGIC_VECTOR(1 downto 0) := (others => '0');
         signal WE1_Reg       : STD_LOGIC := '0';
         signal WE2_Reg       : STD_LOGIC := '0';
         signal MEM_W_Reg     : STD_LOGIC := '0';
-        signal IN_Port_Reg   : STD_LOGIC := '0';
+        signal IN_Port_Reg   : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         signal Imm_Reg       : STD_LOGIC_VECTOR(15 downto 0) := (others => '0');
         signal OUT_EN_Reg    : STD_LOGIC := '0';
 
@@ -86,7 +86,7 @@ begin
         if RST = '1' then
             MemRead_Reg   <= '0';
             MEM_OP_Reg    <= '0';
-            MEM_SEL_Reg   <= '0';
+            MEM_SEL_Reg   <= (others => '0');
             MEM_R_Reg     <= '0';
             ALURes_Reg    <= (others => '0');
             Raddr1_Reg    <= (others => '0');
@@ -98,11 +98,11 @@ begin
             BR_ADDR_Reg   <= (others => '0');
             Rdata1_Reg    <= (others => '0');
             Rdata2_Reg    <= (others => '0');
-            WriteData_Reg <= '0';
+            WriteData_Reg <= (others => '0');
             WE1_Reg       <= '0';
             WE2_Reg       <= '0';
             MEM_W_Reg     <= '0';
-            IN_Port_Reg   <= '0';
+            IN_Port_Reg   <= (others => '0');
             Imm_Reg       <= (others => '0');
             OUT_EN_Reg    <= '0';
         elsif rising_edge(CLK) then
@@ -135,7 +135,7 @@ begin
     -- Combinational outputs (continuous assignments)
     MemRead_Out   <= '0' when CLR = '1' else MemRead_Reg;
     MEM_OP_Out    <= '0' when CLR = '1' else MEM_OP_Reg;
-    MEM_SEL_Out   <= '0' when CLR = '1' else MEM_SEL_Reg;
+    MEM_SEL_Out   <= (others => '0') when CLR = '1' else MEM_SEL_Reg;
     MEM_R_Out     <= '0' when CLR = '1' else MEM_R_Reg;
     ALURes_Out    <= (others => '0') when CLR = '1' else ALURes_Reg;
     Raddr1_Out    <= (others => '0') when CLR = '1' else Raddr1_Reg;
@@ -147,11 +147,11 @@ begin
     BR_ADDR_Out   <= (others => '0') when CLR = '1' else BR_ADDR_Reg;
     Rdata1_Out    <= (others => '0') when CLR = '1' else Rdata1_Reg;
     Rdata2_Out    <= (others => '0') when CLR = '1' else Rdata2_Reg;
-    WriteData_Out <= '0' when CLR = '1' else WriteData_Reg;
+    WriteData_Out <= (others => '0') when CLR = '1' else WriteData_Reg;
     WE1_Out       <= '0' when CLR = '1' else WE1_Reg;
     WE2_Out       <= '0' when CLR = '1' else WE2_Reg;
     MEM_W_Out     <= '0' when CLR = '1' else MEM_W_Reg;
-    IN_Port_Out   <= '0' when CLR = '1' else IN_Port_Reg;
+    IN_Port_Out   <= (others => '0') when CLR = '1' else IN_Port_Reg;
     Imm_Out       <= (others => '0') when CLR = '1' else Imm_Reg;
     OUT_EN_Out    <= '0' when CLR = '1' else OUT_EN_Reg;
 
