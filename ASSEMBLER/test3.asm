@@ -1,2 +1,0 @@
-PUSH R1
-POP R1

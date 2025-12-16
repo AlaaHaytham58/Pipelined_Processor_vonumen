@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
-Script to run the custom 32-bit assembler on any .asm file in current dir
-Generates .mem file compatible with Quartus/ModelSim from the .asm source
+run.py
+
+Runner script for the 32-bit assembler.
+Allows user to choose which .txt assembly file to assemble.
 """
 
 import os
@@ -14,25 +16,30 @@ def main():
     print("===========================")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    asm_files = [f for f in os.listdir(current_dir) if f.endswith('.asm')]
 
-    if not asm_files:
-        print("Error: No .asm files found.")
+    # Find all .txt files
+    txt_files = sorted([f for f in os.listdir(current_dir) if f.endswith('.txt')])
+
+    if not txt_files:
+        print("Error: No .txt assembly files found.")
         return 1
 
-    input_file = None
-    if len(asm_files) == 1:
-        input_file = asm_files[0]
+    # Single file → auto-select
+    if len(txt_files) == 1:
+        input_file = txt_files[0]
         print(f"Found file: {input_file}")
+
+    # Multiple files → user chooses
     else:
-        print("Multiple .asm files found:")
-        for i, f in enumerate(asm_files, 1):
+        print("Available assembly files:")
+        for i, f in enumerate(txt_files, start=1):
             print(f"  {i}. {f}")
+
         try:
-            idx = int(input("Enter number of file to assemble: "))
-            input_file = asm_files[idx - 1]
-        except:
-            print("Invalid input.")
+            choice = int(input("\nSelect file number to assemble: "))
+            input_file = txt_files[choice - 1]
+        except (ValueError, IndexError):
+            print("Invalid selection.")
             return 1
 
     input_path = os.path.join(current_dir, input_file)
@@ -45,22 +52,26 @@ def main():
 
         assembler = Assembler()
         assembler.assemble(code)
-        assembler.write_output(output_path, 'mem')
+        assembler.write_output(output_path)
 
         print(f"\nSuccess! Output saved to: {output_file}")
+
+        # Preview first few lines
+        print("\nPreview:")
         with open(output_path) as f:
-            lines = f.readlines()
-            print("\nPreview:")
-            for line in lines[:20]:
-                print(line.strip())
-            if len(lines) > 20:
-                print("...")
+            for i, line in enumerate(f):
+                if i >= 10:
+                    break
+                print(line.rstrip())
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"\nError: {e}")
         import traceback
         traceback.print_exc()
         return 1
+
+    return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
