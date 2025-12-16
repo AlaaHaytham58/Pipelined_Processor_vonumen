@@ -7,13 +7,12 @@ entity ALU is
         -- Inputs
         op1 : in  STD_LOGIC_VECTOR(31 downto 0);  -- First operand
         op2 : in  STD_LOGIC_VECTOR(31 downto 0);  -- Second operand
-        alu_op   : in  STD_LOGIC_VECTOR(6 downto 0);   -- Operation select
-        offset   : in  STD_LOGIC_VECTOR(15 downto 0);  -- Offset for address calculation
-        imm      : in  STD_LOGIC_VECTOR(15 downto 0);  -- Immediate value
+        alu_op   : in  STD_LOGIC_VECTOR(2 downto 0);   -- Operation select
 
         -- Outputs
         alu_out  : out STD_LOGIC_VECTOR(31 downto 0);  -- ALU result
         ccr      : out STD_LOGIC_VECTOR(3 downto 0)    -- Condition Code Register (Z, N, C, O flags)
+    
         -- N is for signed negative, C is for unsigned overflow, O is for signed overflow
     );
 end ALU;
@@ -35,8 +34,7 @@ architecture Behavioral of ALU is
 
     signal update_flags     : STD_LOGIC_VECTOR(3 downto 0);  -- Z, N, C;
 
-    -- Sign-extended immediate value signals
-    signal imm_extended    : STD_LOGIC_VECTOR(31 downto 0);
+
     signal offset_extended : STD_LOGIC_VECTOR(31 downto 0);
 
     signal CCR_IN : STD_LOGIC_VECTOR(3 downto 0) := "0000"; -- Assumed input from Register File
@@ -45,10 +43,6 @@ architecture Behavioral of ALU is
 
         A <= unsigned('0' & op1);
         B <= unsigned('0' & op2);
-
-        imm_extended <= (31 downto 16 => Imm(15)) & Imm;
-        imm_33_bit <= unsigned('0' & imm_extended);
-        offset_extended <= (31 downto 16 => offset(15)) & offset;
 
         zf <= '1' when unsigned_result = x"00000000" else '0';  -- Zero flag
         nf <= unsigned_result(31);                              -- Negative flag (MSB)
@@ -59,7 +53,7 @@ architecture Behavioral of ALU is
         flags(2) <= cf;
         flags(3) <= '0'; -- V flag (Reserved/Unused)
 
-        process(op1, op2, alu_op, A, B, offset, imm, imm_extended, offset_extended, unsigned_result)
+        process(op1, op2, alu_op, A, B, offset_extended, unsigned_result)
         begin
             signed_result   <= (others => '0');
             unsigned_result <= (others => '0');
@@ -67,35 +61,31 @@ architecture Behavioral of ALU is
             update_flags <= (others => '0');  -- Don't update by default
 
             case alu_op is
-                when "0000 000" => --NOP
-                    result <= (others =>'0');
+                when "000" => --NOP
+                    unsigned_result <= (others =>'0');
 
-                when "0010 111" => --SETC
+                when "111" => --SETC
                     unsigned_result <= (others => '0');
                     cf       <= '1';
                     update_flags <= "0010";
 
-                when "0011 100" => --Not
+                when "100" => --Not
                     unsigned_result <= not op1;
                     update_flags <= "1100";
 
-                when "0011 110" => --INC
-                    signed_result <= std_logic_vector(A + 1);     --33-bits
+                when "110" => --INC
+                    signed_result <= std_logic_vector(A + 1);     --32-bits
                     unsigned_result <= signed_result(31 downto 0);
                     cf <= signed_result(32);
                     update_flags <= "1110";
 
-                when "0001 011" => --Mov
-                    unsigned_result <= op1;
-                    update_flags <= "0000";
-
-                when "0011 001" => --Add
+                when "001" => --Add
                     signed_result <= std_logic_vector(A + B);
                     unsigned_result <= signed_result(31 downto 0);
                     cf <= signed_result(32);
                     update_flags <= "1110";
 
-                when "0011 010" => --Sub
+                when "010" => --Sub
                     unsigned_result <= std_logic_vector(A(31 downto 0) - B(31 downto 0));
                     if A(31 downto 0) >= B(31 downto 0) then
                         cf <= '0';
@@ -104,19 +94,15 @@ architecture Behavioral of ALU is
                     end if;
                     update_flags <= "1110";
 
-                when "0011 011" => --And
+                when "011" => --And
                     unsigned_result <= op1 and op2;
                     update_flags <= "1100";
 
-                when "0011 101" => --IAdd
-                    signed_result <= std_logic_vector(A + imm_33_bit);
+                when "101" => --IAdd
+                    signed_result <= std_logic_vector(A + B);
                     unsigned_result <= signed_result(31 downto 0);
                     cf <= signed_result(32);
                     update_flags <= "1110";
-
-                when "0001 110" => --LDM
-                    unsigned_result <= imm_extended;
-                    update_flags <= "0000";
 
                 when others =>
                     unsigned_result <= (others => 'X');
@@ -127,17 +113,17 @@ architecture Behavioral of ALU is
 
         process(flags, update_flags, CCR_IN)
         variable new_ccr : STD_LOGIC_VECTOR(3 downto 0);
-    begin
-        new_ccr := CCR_IN; -- Default: Hold the current value
+        begin
+            new_ccr := CCR_IN; -- Default: Hold the current value
 
-        -- Apply new calculated flags only if the corresponding update bit is '1'
-        if update_flags(0) = '1' then new_ccr(0) := flags(0); end if; -- C
-        if update_flags(1) = '1' then new_ccr(1) := flags(1); end if; -- N
-        if update_flags(2) = '1' then new_ccr(2) := flags(2); end if; -- Z
-        -- CCR(0) (V flag) is unused and remains '0' unless specified by update_flags(0)
+            -- Apply new calculated flags only if the corresponding update bit is '1'
+            if update_flags(0) = '1' then new_ccr(0) := flags(0); end if; -- C
+            if update_flags(1) = '1' then new_ccr(1) := flags(1); end if; -- N
+            if update_flags(2) = '1' then new_ccr(2) := flags(2); end if; -- Z
+            -- CCR(0) (V flag) is unused and remains '0' unless specified by update_flags(0)
 
-        ccr <= new_ccr;
-    end process;
+            ccr <= new_ccr;
+        end process;
 
 
 end architecture;
