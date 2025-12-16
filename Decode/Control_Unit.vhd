@@ -5,7 +5,6 @@ use IEEE.NUMERIC_STD.ALL;
 ENTITY Control_Unit IS
 	PORT(	
             --Inputs
-            clk,rst : IN std_logic;
             opcode: IN std_logic_vector(7 downto 0);
             HW_INT: IN std_logic;
             SW_INT: IN std_logic;
@@ -46,7 +45,7 @@ END Control_Unit;
 
 ARCHITECTURE Control_Unit_arch OF Control_Unit IS
 BEGIN
-    process(clk, rst) begin
+    process(opcode) begin
         -- Default Values
         Raddr_Sel <= '0';
 
@@ -69,8 +68,8 @@ BEGIN
         OUT_en <= '0';     
 
         HLT <= '0';
-        if (CLK'event and CLK = '1' and rst = '0') then
-            -- Higher priority to HW interrupt
+
+        -- Higher priority to HW interrupt
             if (HW_INT = '1') then
                 Int_Jump_Sel <= '1'; 
                 Int_Idx <= "01";
@@ -218,7 +217,6 @@ BEGIN
                     when others =>
                 end case;
             end if;
-        end if;
     end process;
 
 END Control_Unit_arch;
