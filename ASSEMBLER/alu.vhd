@@ -67,35 +67,35 @@ architecture Behavioral of ALU is
             update_flags <= (others => '0');  -- Don't update by default
 
             case alu_op is
-                when "0000 000" => --NOP
-                    result <= (others =>'0');
+                when "0000000" => --NOP
+                    unsigned_result <= (others =>'0');
 
-                when "0010 111" => --SETC
+                when "0010111" => --SETC
                     unsigned_result <= (others => '0');
                     cf       <= '1';
                     update_flags <= "0010";
 
-                when "0011 100" => --Not
+                when "0011100" => --Not
                     unsigned_result <= not op1;
                     update_flags <= "1100";
 
-                when "0011 110" => --INC
+                when "0011110" => --INC
                     signed_result <= std_logic_vector(A + 1);     --33-bits
                     unsigned_result <= signed_result(31 downto 0);
                     cf <= signed_result(32);
                     update_flags <= "1110";
 
-                when "0001 011" => --Mov
+                when "0001011" => --Mov
                     unsigned_result <= op1;
                     update_flags <= "0000";
 
-                when "0011 001" => --Add
+                when "0011001" => --Add
                     signed_result <= std_logic_vector(A + B);
                     unsigned_result <= signed_result(31 downto 0);
                     cf <= signed_result(32);
                     update_flags <= "1110";
 
-                when "0011 010" => --Sub
+                when "0011010" => --Sub
                     unsigned_result <= std_logic_vector(A(31 downto 0) - B(31 downto 0));
                     if A(31 downto 0) >= B(31 downto 0) then
                         cf <= '0';
@@ -104,17 +104,17 @@ architecture Behavioral of ALU is
                     end if;
                     update_flags <= "1110";
 
-                when "0011 011" => --And
+                when "0011011" => --And
                     unsigned_result <= op1 and op2;
                     update_flags <= "1100";
 
-                when "0011 101" => --IAdd
+                when "0011101" => --IAdd
                     signed_result <= std_logic_vector(A + imm_33_bit);
                     unsigned_result <= signed_result(31 downto 0);
                     cf <= signed_result(32);
                     update_flags <= "1110";
 
-                when "0001 110" => --LDM
+                when "0001110" => --LDM
                     unsigned_result <= imm_extended;
                     update_flags <= "0000";
 

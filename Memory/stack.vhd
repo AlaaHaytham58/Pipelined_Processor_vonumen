@@ -5,7 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity STACK is
     Port ( 
         clk         : in  std_logic;
-        reset_n         : in  std_logic;
+        reset         : in  std_logic;
         SP_enable   : in  std_logic;
         SP_INC      : in  std_logic;  
         SP_DEC      : in  std_logic;  
@@ -34,9 +34,9 @@ begin
         end if;
     end process;
 
-    process(clk, reset_n)
+    process(clk, reset)
     begin
-        if reset_n = '1' then
+        if reset = '1' then
             SP_reg <= (others => '1');
         elsif rising_edge(clk) then
             SP_reg <= SP_next;

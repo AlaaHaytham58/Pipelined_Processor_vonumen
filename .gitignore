@@ -3,3 +3,7 @@ Pipeline Registers/M_W_Register/work
 *.mpf
 *.wlf
 *.cr.mti
+Processor.cr.mti
+Processor.mpf
+vsim.wlf
+work

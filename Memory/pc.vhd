@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 entity PC_Unit is
     port (
         clk         : in  std_logic;
-        reset_n     : in  std_logic;
+        reset     : in  std_logic;
         stall       : in  std_logic;   
         int         : in  std_logic;
         PCSrc       : in  std_logic; -- iassume  pcsrc equal 1 yb2a branch mesh motakda a7san a3mlha keda wala fakes we handle in mux?
@@ -26,9 +26,9 @@ begin
     PC_plus4  <= std_logic_vector(unsigned(PC) + 4);
     PC_branch <= std_logic_vector(unsigned(PC) + unsigned(ImmExt));
     NextPC    <= PC_branch when PCSrc = '1' else PC_plus4;
-    process(clk, reset_n)
+    process(clk, reset)
     begin
-        if reset_n = '0'  then
+        if reset = '0'  then
             PC <= M0;                           
         elsif rising_edge(clk) then
             if int = '1' then
