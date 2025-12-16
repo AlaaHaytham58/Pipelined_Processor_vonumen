@@ -7,6 +7,9 @@ entity M_W_Register is
         RST           : in  STD_LOGIC;
         EN            : in  STD_LOGIC;
         -- Inputs
+        RTI           : in  STD_LOGIC;
+        Addr1_Sel     : in STD_LOGIC_VECTOR(1 downto 0);
+        Data1_Sel     : in STD_LOGIC_VECTOR(2 downto 0);
         ALURes        : in STD_LOGIC_VECTOR(31 downto 0);
         Raddr1        : in STD_LOGIC_VECTOR(2 downto 0);
         Raddr2        : in STD_LOGIC_VECTOR(2 downto 0);
@@ -15,7 +18,7 @@ entity M_W_Register is
         Rdata2        : in STD_LOGIC_VECTOR(31 downto 0);
         WE1           : in STD_LOGIC;
         WE2           : in STD_LOGIC;
-        IN_Port       : in STD_LOGIC;
+        IN_Port       : in STD_LOGIC_VECTOR(31 downto 0);
         RT_ADDR       : in STD_LOGIC_VECTOR(31 downto 0);
         LD_DATA       : in STD_LOGIC_VECTOR(31 downto 0);
         Imm           : in STD_LOGIC_VECTOR(15 downto 0);
@@ -23,6 +26,9 @@ entity M_W_Register is
         CLR           : in STD_LOGIC; 
 
         -- Outputs;
+        RTI_Out       : out  STD_LOGIC;
+        Addr1_Sel_Out : out STD_LOGIC_VECTOR(1 downto 0);
+        Data1_Sel_Out : out STD_LOGIC_VECTOR(2 downto 0);
         ALURes_Out    : out STD_LOGIC_VECTOR(31 downto 0);
         Raddr1_Out    : out STD_LOGIC_VECTOR(2 downto 0);
         Raddr2_Out    : out STD_LOGIC_VECTOR(2 downto 0);
@@ -41,6 +47,9 @@ end M_W_Register;
 
 architecture Behavioral of M_W_Register is
     -- Internal registers to store input values
+        signal RTI_Reg       : STD_LOGIC := '0';
+        signal Addr1_Sel_Reg : STD_LOGIC_VECTOR(1 downto 0) := (others => '0');
+        signal Data1_Sel_Reg : STD_LOGIC_VECTOR(2 downto 0) := (others => '0');
         signal ALURes_Reg    : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         signal Raddr1_Reg    : STD_LOGIC_VECTOR(2 downto 0)  := (others => '0');
         signal Raddr2_Reg    : STD_LOGIC_VECTOR(2 downto 0)  := (others => '0');
@@ -50,7 +59,7 @@ architecture Behavioral of M_W_Register is
         signal Rdata2_Reg    : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         signal WE1_Reg       : STD_LOGIC := '0';
         signal WE2_Reg       : STD_LOGIC := '0';
-        signal IN_Port_Reg   : STD_LOGIC := '0';
+        signal IN_Port_Reg   : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         signal LD_DATA_Reg   : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         signal Imm_Reg       : STD_LOGIC_VECTOR(15 downto 0) := (others => '0');
         signal OUT_EN_Reg    : STD_LOGIC := '0';
@@ -60,6 +69,9 @@ begin
     process (CLK, RST)
     begin
         if RST = '1' then
+            RTI_Reg       <= '0';
+            Addr1_Sel_Reg <= (others => '0');
+            Data1_Sel_Reg <= (others => '0');
             ALURes_Reg    <= (others => '0');
             Raddr1_Reg    <= (others => '0');
             Raddr2_Reg    <= (others => '0');
@@ -69,12 +81,15 @@ begin
             Rdata2_Reg    <= (others => '0');
             WE1_Reg       <= '0';
             WE2_Reg       <= '0';
-            IN_Port_Reg   <= '0';
+            IN_Port_Reg   <= (others => '0');
             LD_DATA_Reg   <= (others => '0');
             Imm_Reg       <= (others => '0');
             OUT_EN_Reg    <= '0';
         elsif rising_edge(CLK) then
             if EN = '1' then
+                RTI_Reg       <= RTI;
+                Addr1_Sel_Reg <= Addr1_Sel;
+                Data1_Sel_Reg <= Data1_Sel;
                 ALURes_Reg    <= ALURes;
                 Raddr1_Reg    <= Raddr1;
                 Raddr2_Reg    <= Raddr2;
@@ -93,6 +108,9 @@ begin
     end process;
 
     -- Combinational outputs (continuous assignments)
+    RTI_Out       <= RTI_Reg;
+    Addr1_Sel_Out <= Addr1_Sel_Reg;
+    Data1_Sel_Out <= Data1_Sel_Reg;
     ALURes_Out    <= ALURes_Reg;
     Raddr1_Out    <= Raddr1_Reg;
     Raddr2_Out    <= Raddr2_Reg;
