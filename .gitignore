@@ -7,3 +7,4 @@ Processor.cr.mti
 Processor.mpf
 vsim.wlf
 work
+*.cr.mti
