@@ -50,18 +50,20 @@ BEGIN
         -- Default Values
         Raddr_Sel <= '0';
 
-        (RTI, Branch) <= "00";
-        (Int_Idx, Int_Jump_Sel,J_Type) <= "000000";
-        (ALU_A, ALU_B) <= "00";
-        ALU_Op <= "00";
+        RTI <= '0';
+        Branch <= '0';
+        Int_Idx <= "00";
+        Int_Jump_Sel <= '0'; J_Type <= "00";
+        ALU_A <= '0'; ALU_B <= '0';
+        ALU_Op <= "000";
         CCR_En <= '0';
 
-        (Mem_Write_En, Mem_Read_En,Stack_En, PCsrc) <= "0000";
-        (Stack_Inc, Mem_Op) <= "00";
+        Mem_Write_En <= '0'; Mem_Read_En <= '0'; Stack_En <= '0'; PCsrc <= '0';
+        Stack_Inc <= '0'; Mem_Op <= '0';
         Mem_Addr_Sel <= "00";
         Mem_Write_Sel <= "00";
 
-        (WE1, WE2) <= "00";
+        WE1 <= '0'; WE2 <= '0';
         WB_Wadrr_Sel <= "00";    
         WB_Wdata_Sel <= "000";
         OUT_en <= '0';     
@@ -72,6 +74,7 @@ BEGIN
             if (HW_INT = '1') then
                 Int_Jump_Sel <= '1'; 
                 Int_Idx <= "01";
+                Branch <= '1';
             else 
                 -- First 4 bits are fixed
                 Mem_Op <= opcode(7);
@@ -84,36 +87,67 @@ BEGIN
                     -- ALU and Rtype operations
                     when "00" =>
                         -- ALU operations
-                        if (CCR_En) then
+                        if (opcode(5) = '1') then
                             -- Set opcode
                             ALU_Op <= opcode(2 downto 0);
 
                             -- One operand operations read from Rdst otherwise from Rsrc
-                            Raddr_Sel <= '1' when opcode(2) = '1' else '0';
+                            if (opcode(2) = '1') then 
+                                Raddr_Sel <= '1';
+                            else
+                                Raddr_Sel <= '0';
+                            end if;
 
                             -- IADD takes immediate  in B, otherwise, rsrc2
-                            ALU_B <= '1' when opcode(2 downto 0) = "101" else '0';
+                            if (opcode(2 downto 0) = "101") then 
+                                ALU_B <= '1';
+                            else
+                                ALU_B <= '0';
+                            end if;
                         else
                         -- Rtype operations
-                            HLT <= '1' when opcode(2 downto 0) = "001";
-                            
+
+                            if (opcode(2 downto 0) = "001") then
+                                HLT <= '1';
+                            else 
+                                HLT <= '0';
+                            end if;
+
                             -- Read Rsrc for move otherwise read Rdst (or don't care for operations that don't use rdata1)
-                            Raddr_Sel <= '0' when opcode(2 downto 0) = "011" else '1';
-                            
+                            if (opcode(2 downto 0) = "011") then 
+                                Raddr_Sel <= '0';
+                            else 
+                                Raddr_Sel <= '1'; 
+                            end if;
+
                             -- Write in Rdst for operations with Write back
                             WB_Wadrr_Sel <= "00";
 
                             -- For writing to OUT port in write operations
-                            OUT_En <= '1' when opcode(2 downto 0) = "010";
+                            if (opcode(2 downto 0) = "010") then 
+                                OUT_En <= '1';
+                            else 
+                                OUT_En <= '0';
+                            end if;
 
                             -- To write back data for Swap
-                            WE2 <= '1' when opcode(2 downto 0) = "101";
-                            
+                            if (opcode(2 downto 0) = "101") then 
+                                WE2 <= '1';
+                            else
+                                WE2 <= '0';
+                            end if;
+
                             -- WB data selection: Imm in the case of LDM, IN for IN instruction, Rdata2 for swap ,Rdata1 otherwise
-                            WB_Wdata_Sel <= "011" when opcode(2 downto 0) = "110" else
-                                            "111" when opcode(2 downto 0) = "001" else
-                                            "010" when opcode(2 downto 0) = "101" else
-                                            "001";
+                            if (opcode(2 downto 0) = "110") then 
+                                WB_Wdata_Sel <= "011";
+                            elsif (opcode(2 downto 0) = "001") then
+                                WB_Wdata_Sel <= "111";
+                            elsif (opcode(2 downto 0) = "101") then
+                                WB_Wdata_Sel <= "010";
+                            else
+                                WB_Wdata_Sel <= "001";
+                            end if;
+                                
                         end if;    
 
                     -- Branch Operations                       
@@ -159,20 +193,29 @@ BEGIN
                         Int_Jump_Sel <= opcode(1);
 
                         -- Choose the address that the interrupt jumps to (don't care if operation is not INT)
-                        Int_Idx <= "10" when SW_INT = '0' else "11";
-                        
+                        if (SW_INT = '0') then
+                            Int_Idx <= "10";
+                        else 
+                            Int_Idx <= "11";
+                        end if;
+
+                        -- Choose Stack pointer in Memory Stage
+                        Mem_Addr_Sel <= "10";
+
                         -- Enable MemWrite for call, int
                         Mem_Write_En <= opcode(0);
 
-                        -- Enable MemRead for op and ldd
+                        -- Enable MemRead for RET/RTI
                         Mem_Read_En <= not opcode(0);
 
-                        -- Enable SP for push pop
-                        Stack_En <= opcode(1);
+                        -- Enable SP 
+                        Stack_En <= '1';
 
                         -- Choose increment or decrement SP
-                        Stack_Inc <= opcode(0);
+                        Stack_Inc <= not opcode(0);
 
+                        RTI <= opcode(1) and (not opcode(0));
+                    when others =>
                 end case;
             end if;
         end if;
