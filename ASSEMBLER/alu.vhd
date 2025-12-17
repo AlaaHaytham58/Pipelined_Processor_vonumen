@@ -32,10 +32,6 @@ architecture Behavioral of ALU is
 
     signal update_flags     : STD_LOGIC_VECTOR(2 downto 0);  -- C, N, Z;
 
-
-
-    signal CCR_IN : STD_LOGIC_VECTOR(3 downto 0) := "0000"; -- Assumed input from Register File
-
     begin
 
         A <= unsigned('0' & op1);
@@ -115,10 +111,10 @@ architecture Behavioral of ALU is
 
         alu_out <= unsigned_result;
 
-        process(CCR_IN, cf, nf, zf, update_flags)
+        process(ccr_in, cf, nf, zf, update_flags)
         variable new_ccr : STD_LOGIC_VECTOR(2 downto 0);
         begin
-            new_ccr := CCR_IN; -- Default: Hold the current value
+            new_ccr := ccr_in; -- Default: Hold the current value
 
             if update_flags(2) = '1' then new_ccr(2) := cf; end if; -- C
             if update_flags(1) = '1' then new_ccr(1) := nf; end if; -- N
