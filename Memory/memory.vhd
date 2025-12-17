@@ -6,7 +6,6 @@ entity Memory is
     port (
         clk        : in std_logic;
         reset    : in std_logic;
-
         -- Data memory 
         Mem_write  : in std_logic;
         Mem_Read   : in std_logic; 
