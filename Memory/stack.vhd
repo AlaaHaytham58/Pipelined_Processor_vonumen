@@ -1,3 +1,4 @@
+-- STACK.vhd (32-bit version)
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
@@ -5,39 +6,44 @@ use IEEE.NUMERIC_STD.ALL;
 entity STACK is
     Port ( 
         clk         : in  std_logic;
-        reset         : in  std_logic;
+        reset       : in  std_logic;
         SP_enable   : in  std_logic;
         SP_INC      : in  std_logic;  
         SP_DEC      : in  std_logic;  
-        SP_mem      : in  std_logic_vector(11 downto 0); 
-        SP_out      : out std_logic_vector(11 downto 0)  
+        SP_mem      : in  std_logic_vector(31 downto 0); --direct load
+        SP_out      : out std_logic_vector(31 downto 0)  
     );
 end STACK;
 
 architecture ARCH_SP of STACK is
-    signal SP_reg  : std_logic_vector(11 downto 0) := (others => '1'); 
-    signal SP_next : std_logic_vector(11 downto 0);
+    constant SP_INITIAL : std_logic_vector(31 downto 0) := x"000FFFFC";  
+    signal SP_reg  : std_logic_vector(31 downto 0) := SP_INITIAL;
+    signal SP_next : std_logic_vector(31 downto 0);
+    
 begin
 
     process(SP_reg, SP_enable, SP_INC, SP_DEC, SP_mem)
     begin
         if SP_enable = '1' then
-            if SP_INC = '1' and SP_reg /= "111111111111" then
-                SP_next <= std_logic_vector(unsigned(SP_reg) + 1);
-            elsif SP_DEC = '1' and SP_reg /= "000000000000" then
-                SP_next <= std_logic_vector(unsigned(SP_reg) - 1); 
+            if SP_INC = '1' and SP_DEC = '0' then
+                -- Increment by 4 (word addressing)
+                SP_next <= std_logic_vector(unsigned(SP_reg) + 4);
+            elsif SP_DEC = '1' and SP_INC = '0' then
+                -- Decrement by 4 (word addressing)
+                SP_next <= std_logic_vector(unsigned(SP_reg) - 4);
             else
-                SP_next <= SP_reg; 
+                -- Direct load or hold
+                SP_next <= SP_mem;
             end if;
         else
-            SP_next <= SP_reg; --hold stack
+            SP_next <= SP_reg;
         end if;
     end process;
 
     process(clk, reset)
     begin
         if reset = '1' then
-            SP_reg <= (others => '1');
+            SP_reg <= SP_INITIAL;
         elsif rising_edge(clk) then
             SP_reg <= SP_next;
         end if;

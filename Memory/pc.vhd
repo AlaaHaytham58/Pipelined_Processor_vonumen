@@ -16,7 +16,7 @@ entity PC_Unit is
     );
 end entity;
 
-architecture Behavioral of PC_Unit is
+architecture PC_ARCH of PC_Unit is
     signal PC         : std_logic_vector(31 downto 0) := (others => '0');
     signal PC_plus4   : std_logic_vector(31 downto 0);
     signal PC_branch  : std_logic_vector(31 downto 0);
