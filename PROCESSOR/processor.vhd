@@ -469,7 +469,6 @@ STACK_inst: entity work.STACK
         reset => reset,
         SP_enable => SP_enable,
         SP_INC => Stack_Inc,          
-        SP_DEC => not Stack_Inc,      
         SP_mem => EX_MEM_ALU_result(31 downto 0),   
         SP_out => SP_value
     );
