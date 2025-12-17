@@ -18,7 +18,7 @@ entity M_W_Register is
         IN_Port       : in STD_LOGIC;
         RT_ADDR       : in STD_LOGIC_VECTOR(31 downto 0);
         LD_DATA       : in STD_LOGIC_VECTOR(31 downto 0);
-        Imm           : in STD_LOGIC_VECTOR(15 downto 0);
+        Imm           : in STD_LOGIC_VECTOR(31 downto 0);
         OUT_EN        : in STD_LOGIC;
         CLR           : in STD_LOGIC; 
 
@@ -34,7 +34,7 @@ entity M_W_Register is
         WE2_Out       : out STD_LOGIC;
         IN_Port_Out   : out STD_LOGIC;
         LD_DATA_Out   : out STD_LOGIC_VECTOR(31 downto 0);
-        Imm_Out       : out STD_LOGIC_VECTOR(15 downto 0);
+        Imm_Out       : out STD_LOGIC_VECTOR(31 downto 0);
         OUT_EN_Out    : out STD_LOGIC
     );
 end M_W_Register;

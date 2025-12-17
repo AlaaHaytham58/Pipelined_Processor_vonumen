@@ -1,40 +1,39 @@
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity Memory is
-    generic (
-        Address_bits : integer := 12;  
-        Data_width   : integer := 32   
-    );
     port (
         clk        : in std_logic;
-        reset_n    : in std_logic;
+        reset    : in std_logic;
+        -- Data memory 
         Mem_write  : in std_logic;
         Mem_Read   : in std_logic; 
-        Mem_Addr   : in std_logic_vector(Address_bits - 1 downto 0);
-        Write_data : in std_logic_vector(Data_width - 1 downto 0);
-        Rdata      : out std_logic_vector(Data_width - 1 downto 0)
+        Mem_Addr   : in std_logic_vector(31 downto 0);   
+        Write_data : in std_logic_vector(31 downto 0);
+        Read_data  : out std_logic_vector(31 downto 0);
+       
     );
 end entity;
 
 architecture ARCH_Memory of Memory is
-    type memory_array is array (0 to 2**Address_bits - 1) of std_logic_vector(Data_width - 1 downto 0);
-    signal mem : memory_array := (others => (others => '0'));
-
+    constant MEM_SIZE : integer := 2**20;  
+    type memory_array is array (0 to MEM_SIZE - 1) of std_logic_vector(31 downto 0);
+    signal mem : memory_array := (
+        others => (others => '0')
+    );
+    
 begin
-    -- read
-    process(Mem_Addr)
-    begin
-        Rdata <= mem(to_integer(unsigned(Mem_Addr)));
-    end process;
-
-    --  write
-    process(clk)
+    -- read for data memory 
+    Read_data <= mem(0) when reset = '1' else mem(to_integer(unsigned(Mem_Addr)));
+    
+    -- write
+    process(clk, reset)
     begin
         if rising_edge(clk) then
-            if Mem_write = '1' then
+            if reset = '1' then
+                -- leave it in case we use  it later
+            elsif Mem_write = '1' then
                 mem(to_integer(unsigned(Mem_Addr))) <= Write_data;
             end if;
         end if;
