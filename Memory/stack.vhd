@@ -9,7 +9,7 @@ entity STACK is
         reset       : in  std_logic;
         SP_enable   : in  std_logic;
         SP_INC      : in  std_logic;  
-        SP_DEC      : in  std_logic;  
+        --SP_DEC      : in  std_logic;  only sp_inc needed
         SP_mem      : in  std_logic_vector(31 downto 0); --direct load
         SP_out      : out std_logic_vector(31 downto 0)  
     );
@@ -21,14 +21,13 @@ architecture ARCH_SP of STACK is
     signal SP_next : std_logic_vector(31 downto 0);
     
 begin
-
-    process(SP_reg, SP_enable, SP_INC, SP_DEC, SP_mem)
+    process(SP_reg, SP_enable, SP_INC, SP_mem)
     begin
         if SP_enable = '1' then
-            if SP_INC = '1' and SP_DEC = '0' then
+            if SP_INC = '1' then
                 -- Increment by 4 (word addressing)
                 SP_next <= std_logic_vector(unsigned(SP_reg) + 4);
-            elsif SP_DEC = '1' and SP_INC = '0' then
+            elsif SP_INC = '0' then
                 -- Decrement by 4 (word addressing)
                 SP_next <= std_logic_vector(unsigned(SP_reg) - 4);
             else

@@ -11,6 +11,7 @@ entity PC_Unit is
         M0          : in  std_logic_vector(31 downto 0);
         PC_branch   : IN std_logic_vector(31 downto 0);
         PC_out      : out std_logic_vector(31 downto 0)
+
     );
 end entity;
 
@@ -25,7 +26,7 @@ begin
     
     process(clk, reset)
     begin
-        if reset = '0'  then
+        if reset = '1'  then
             PC <= M0;                           
         elsif rising_edge(clk) then
             if stall = '0' then

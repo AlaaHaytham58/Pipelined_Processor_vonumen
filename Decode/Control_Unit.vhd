@@ -168,7 +168,7 @@ BEGIN
                         Stack_En <= opcode(1);
 
                         -- Choose increment or decrement SP
-                        Stack_Inc <= opcode(0);
+                        Stack_Inc <= not opcode(0);
 
                         -- for load and store, ALU operands are rsrc2, Imm
                         ALU_A <= '1';
@@ -211,7 +211,7 @@ BEGIN
                         Stack_En <= '1';
 
                         -- Choose increment or decrement SP
-                        Stack_Inc <= not opcode(0);
+                        Stack_Inc <= opcode(0);
 
                         RTI <= opcode(1) and (not opcode(0));
                     when others =>
