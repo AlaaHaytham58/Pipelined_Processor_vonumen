@@ -13,7 +13,7 @@ entity ALU is
         -- Outputs
         alu_out  : out STD_LOGIC_VECTOR(31 downto 0);  -- ALU result
         ccr_out  : out STD_LOGIC_VECTOR(2 downto 0)    -- (C, N, Z)
-    
+
     );
 end ALU;
 
@@ -37,7 +37,7 @@ architecture Behavioral of ALU is
         A <= unsigned('0' & op1);
         B <= unsigned('0' & op2);
 
-        process(op1, op2, alu_op, A, B, offset_extended, unsigned_result)
+        process(op1, op2, alu_op, A, B, unsigned_result)
         begin
             signed_result   <= (others => '0');
             unsigned_result <= (others => '0');
@@ -58,7 +58,11 @@ architecture Behavioral of ALU is
 
                 when "100" => --Not
                     unsigned_result <= not op1;
-                    zf <= '1' when unsigned_result = x"00000000" else '0';
+                    if unsigned_result = x"00000000" then
+                        zf <= '1';
+                    else
+                        zf <= '0';
+                    end if;
                     nf <= unsigned_result(31);
                     update_flags <= "011";
 
@@ -66,7 +70,11 @@ architecture Behavioral of ALU is
                     signed_result <= std_logic_vector(A + 1);     --32-bits
                     unsigned_result <= signed_result(31 downto 0);
                     cf <= signed_result(32);
-                    zf <= '1' when signed_result(31 downto 0) = x"00000000" else '0';
+                    if signed_result(31 downto 0) = x"00000000" then
+                        zf <= '1';
+                    else
+                        zf <= '0';
+                    end if;
                     nf <= signed_result(31);
                     update_flags <= "111";
 
@@ -74,7 +82,11 @@ architecture Behavioral of ALU is
                     signed_result <= std_logic_vector(A + B);
                     unsigned_result <= signed_result(31 downto 0);
                     cf <= signed_result(32);
-                    zf <= '1' when signed_result(31 downto 0) = x"00000000" else '0';
+                    if  signed_result(31 downto 0) = x"00000000" then
+                        zf <= '1';
+                    else
+                        zf <= '0';
+                    end if;
                     nf <= signed_result(31);
                     update_flags <= "111";
 
@@ -85,13 +97,21 @@ architecture Behavioral of ALU is
                     else
                         cf <= '1';
                     end if;
-                    zf <= '1' when unsigned_result = x"00000000" else '0';
+                    if unsigned_result = x"00000000" then
+                        zf <= '1';
+                    else
+                        zf <= '0';
+                    end if;
                     nf <= unsigned_result(31);
                     update_flags <= "111";
 
                 when "011" => --And
                     unsigned_result <= op1 and op2;
-                    zf <= '1' when unsigned_result = x"00000000" else '0';
+                    if unsigned_result = x"00000000" then
+                        zf <= '1';
+                    else
+                        zf <= '0';
+                    end if;
                     nf <= unsigned_result(31);
                     update_flags <= "011";
 
@@ -99,7 +119,11 @@ architecture Behavioral of ALU is
                     signed_result <= std_logic_vector(A + B);
                     unsigned_result <= signed_result(31 downto 0);
                     cf <= signed_result(32);
-                    zf <= '1' when signed_result(31 downto 0) = x"00000000" else '0';
+                    if signed_result(31 downto 0) = x"00000000" then
+                        zf <= '1';
+                    else
+                        zf <= '0';
+                    end if;
                     nf <= signed_result(31);
                     update_flags <= "111";
 
