@@ -1,6 +1,11 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
+use IEEE.STD_LOGIC_1164.all;
+use STD.TEXTIO.all;
+use IEEE.NUMERIC_STD_UNSIGNED.all;
+library std;
+
 
 ENTITY processor_tb IS
 END processor_tb;
@@ -31,7 +36,12 @@ ARCHITECTURE testbench OF processor_tb IS
     signal instruction_debug : std_logic_vector(31 downto 0);
     signal ALU_result_debug : std_logic_vector(31 downto 0);
     signal CCR_debug : std_logic_vector(3 downto 0);
-    
+    signal endoffile : bit := '0';
+
+    signal  dataread : integer;
+    signal linenumber : integer:=1; --line number of the file read or written.
+    signal rd_en : std_logic := '0';
+    signal wr_en: std_logic := '1';
     -- Clock period
     constant CLK_PERIOD : time := 10 ns;
     
@@ -60,6 +70,7 @@ BEGIN
         wait for CLK_PERIOD/2;
     end process;
     
+
     -- Test stimulus
     stim_process: process
     begin

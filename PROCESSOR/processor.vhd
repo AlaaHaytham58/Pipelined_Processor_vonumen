@@ -371,12 +371,14 @@ BEGIN
     
     -- ALU
     ALU_inst: entity work.ALU
-        Port Map(
+        Port Map
+        (
             op1 => ALU_op1,
             op2 => ALU_op2,
-            alu_op => ID_EX_ALU_Op,  
+            alu_op => ID_EX_ALU_Op, 
             alu_out => ALU_result,
-            ccr => CCR_updated
+            ccr_in => "000",
+            ccr_out => CCR_updated(2 downto 0)
         );
     
     ALU_result_debug <= ALU_result;
@@ -584,7 +586,7 @@ STACK_inst: entity work.STACK
             OUT_PORT <= (others => '0');
         elsif rising_edge(clk) then
             if MEM_WB_OUT_En = '1' then
-                OUT_PORT <= MEM_WB_ALU_result;
+                OUT_PORT <= MEM_WB_Rdata1;
             end if;
         end if;
     end process;
