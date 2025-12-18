@@ -38,6 +38,7 @@ architecture Behavioral of ALU is
         B <= unsigned('0' & op2);
 
         process(op1, op2, alu_op, A, B, unsigned_result)
+            variable tmp : unsigned(32 downto 0);
         begin
             signed_result   <= (others => '0');
             unsigned_result <= (others => '0');
@@ -79,10 +80,10 @@ architecture Behavioral of ALU is
                     update_flags <= "111";
 
                 when "001" => --Add
-                    signed_result <= std_logic_vector(A + B);
-                    unsigned_result <= signed_result(31 downto 0);
-                    cf <= signed_result(32);
-                    if  signed_result(31 downto 0) = x"00000000" then
+                    tmp := A + B;
+                    unsigned_result <= std_logic_vector(tmp(31 downto 0));
+                    cf <= tmp(32);
+                    if  tmp(31 downto 0) = x"00000000" then
                         zf <= '1';
                     else
                         zf <= '0';
@@ -116,9 +117,9 @@ architecture Behavioral of ALU is
                     update_flags <= "011";
 
                 when "101" => --IAdd
-                    signed_result <= std_logic_vector(A + B);
-                    unsigned_result <= signed_result(31 downto 0);
-                    cf <= signed_result(32);
+                    tmp := A + B;
+                    unsigned_result <= std_logic_vector(tmp(31 downto 0));
+                    cf <= tmp(32);
                     if signed_result(31 downto 0) = x"00000000" then
                         zf <= '1';
                     else

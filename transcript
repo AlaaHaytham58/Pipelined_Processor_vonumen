@@ -1,5 +1,5 @@
 # vsim work.ALU_TB 
-# Start time: 17:46:49 on Dec 18,2025
+# Start time: 18:13:52 on Dec 18,2025
 # Loading std.standard
 # Loading std.textio(body)
 # Loading ieee.std_logic_1164(body)
@@ -7,17 +7,8 @@
 # Loading work.alu_tb(tb)
 # Loading work.alu(behavioral)
 add wave *
-run 200ns
-# ** Error: ADD failed
-#    Time: 20 ns  Iteration: 0  Instance: /alu_tb
-# ** Error: ADD CCR wrong
-#    Time: 20 ns  Iteration: 0  Instance: /alu_tb
-# ** Error: ADD carry failed
-#    Time: 30 ns  Iteration: 0  Instance: /alu_tb
-# ** Error: ADD carry flags wrong
-#    Time: 30 ns  Iteration: 0  Instance: /alu_tb
+run 200 ns
 # ** Note: ALU TESTS PASSED SUCCESSFULLY
 #    Time: 80 ns  Iteration: 0  Instance: /alu_tb
-# Break key hit
-# End time: 18:04:34 on Dec 18,2025, Elapsed time: 0:17:45
-# Errors: 4, Warnings: 0
+# End time: 18:14:53 on Dec 18,2025, Elapsed time: 0:01:01
+# Errors: 0, Warnings: 0
