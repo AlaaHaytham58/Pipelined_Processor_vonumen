@@ -5,7 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 ENTITY Control_Unit IS
 	PORT(	
             --Inputs
-            opcode: IN std_logic_vector(7 downto 0);
+            opcode: IN std_logic_vector(6 downto 0);
             HW_INT: IN std_logic;
             SW_INT: IN std_logic;
 
@@ -76,17 +76,17 @@ BEGIN
                 Branch <= '1';
             else 
                 -- First 4 bits are fixed
-                Mem_Op <= opcode(7);
-                PCsrc  <= opcode(6);
-                CCR_En <= opcode(5);
-                WE1    <= opcode(4);
+                Mem_Op <= opcode(6);
+                PCsrc  <= opcode(5);
+                CCR_En <= opcode(4);
+                WE1    <= opcode(3);
 
                 -- Decode based on operation type
-                case(opcode(7 downto 6)) is
+                case(opcode(6 downto 5)) is
                     -- ALU and Rtype operations
                     when "00" =>
                         -- ALU operations
-                        if (opcode(5) = '1') then
+                        if (opcode(4) = '1') then
                             -- Set opcode
                             ALU_Op <= opcode(2 downto 0);
 
@@ -140,7 +140,7 @@ BEGIN
                             if (opcode(2 downto 0) = "110") then 
                                 WB_Wdata_Sel <= "011";
                             elsif (opcode(2 downto 0) = "001") then
-                                WB_Wdata_Sel <= "111";
+                                WB_Wdata_Sel <= "110";
                             elsif (opcode(2 downto 0) = "101") then
                                 WB_Wdata_Sel <= "010";
                             else

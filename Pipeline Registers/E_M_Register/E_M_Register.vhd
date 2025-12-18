@@ -22,7 +22,8 @@ entity E_M_Register is
         WE2           : in STD_LOGIC;
         IN_Port       : in STD_LOGIC;
         PCSRC         : in STD_LOGIC;
-        STACK         : in STD_LOGIC;
+        Stack_en      : in  STD_LOGIC;
+        Stack_inc     : in  STD_LOGIC; 
         BR_ADDR       : in STD_LOGIC_VECTOR(31 downto 0);
         MEM_W         : in STD_LOGIC;
         Imm           : in STD_LOGIC_VECTOR(31 downto 0);
@@ -41,7 +42,8 @@ entity E_M_Register is
         Rdst_Out      : out STD_LOGIC_VECTOR(2 downto 0);
         PCPlus4_Out   : out STD_LOGIC_VECTOR(31 downto 0);
         PCSRC_Out     : out STD_LOGIC;
-        STACK_Out     : out STD_LOGIC;
+        Stack_en_Out  : out STD_LOGIC;
+        Stack_inc_Out : out STD_LOGIC;
         BR_ADDR_Out   : out STD_LOGIC_VECTOR(31 downto 0);
         Rdata1_Out    : out STD_LOGIC_VECTOR(31 downto 0);
         Rdata2_Out    : out STD_LOGIC_VECTOR(31 downto 0);
@@ -67,7 +69,8 @@ architecture Behavioral of E_M_Register is
         signal Rdst_Reg      : STD_LOGIC_VECTOR(2 downto 0)  := (others => '0');
         signal PCPlus4_Reg   : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         signal PCSRC_Reg     : STD_LOGIC := '0';
-        signal STACK_Reg     : STD_LOGIC := '0';
+        signal Stack_en_Reg  : STD_LOGIC := '0';
+        signal Stack_inc_Reg : STD_LOGIC := '0';
         signal BR_ADDR_Reg   : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         signal Rdata1_Reg    : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         signal Rdata2_Reg    : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
@@ -94,7 +97,8 @@ begin
             Rdst_Reg      <= (others => '0');
             PCPlus4_Reg   <= (others => '0');
             PCSRC_Reg     <= '0';
-            STACK_Reg     <= '0';
+            Stack_en_Reg  <= '0';
+            Stack_inc_Reg <= '0';
             BR_ADDR_Reg   <= (others => '0');
             Rdata1_Reg    <= (others => '0');
             Rdata2_Reg    <= (others => '0');
@@ -117,7 +121,8 @@ begin
                 Rdst_Reg      <= Rdst;
                 PCPlus4_Reg   <= PCPlus4;
                 PCSRC_Reg     <= PCSRC;
-                STACK_Reg     <= STACK;
+                Stack_en_Reg  <= Stack_en;
+                Stack_inc_Reg <= Stack_inc;
                 BR_ADDR_Reg   <= BR_ADDR;
                 Rdata1_Reg    <= Rdata1;
                 Rdata2_Reg    <= Rdata2;
@@ -143,7 +148,8 @@ begin
     Rdst_Out      <= (others => '0') when CLR = '1' else Rdst_Reg;
     PCPlus4_Out   <= (others => '0') when CLR = '1' else PCPlus4_Reg;
     PCSRC_Out     <= '0' when CLR = '1' else PCSRC_Reg;
-    STACK_Out     <= '0' when CLR = '1' else STACK_Reg;
+    Stack_en_Out  <= '0' when CLR='1' else Stack_en_Reg;
+    Stack_inc_Out  <= '0' when CLR='1' else Stack_inc_Reg;
     BR_ADDR_Out   <= (others => '0') when CLR = '1' else BR_ADDR_Reg;
     Rdata1_Out    <= (others => '0') when CLR = '1' else Rdata1_Reg;
     Rdata2_Out    <= (others => '0') when CLR = '1' else Rdata2_Reg;

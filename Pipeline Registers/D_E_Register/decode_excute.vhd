@@ -18,7 +18,8 @@ entity D_E_Register is
         WriteData  : in  STD_LOGIC;
         MemRead    : in  STD_LOGIC;
         J_Type     : in  STD_LOGIC_VECTOR(1 downto 0);
-        STACK      : in  STD_LOGIC;
+        Stack_en   : in  STD_LOGIC;
+        Stack_inc  : in  STD_LOGIC; 
         MEM_OP     : in  STD_LOGIC;
         MEM_SEL    : in  STD_LOGIC_VECTOR(1 downto 0);
         OUT_EN     : in  STD_LOGIC;
@@ -50,7 +51,8 @@ entity D_E_Register is
         WriteData_Out : out STD_LOGIC;
         MemRead_Out   : out STD_LOGIC;
         J_Type_Out    : out STD_LOGIC_VECTOR(1 downto 0);
-        STACK_Out     : out STD_LOGIC;
+        Stack_en_Out  : out STD_LOGIC;
+        Stack_inc_Out : out STD_LOGIC;
         MEM_OP_Out    : out STD_LOGIC;
         MEM_SEL_Out   : out STD_LOGIC_VECTOR(1 downto 0);
         OUT_EN_Out    : out STD_LOGIC;
@@ -83,7 +85,8 @@ architecture D_E_ARCH of D_E_Register is
     signal WriteData_Reg  : STD_LOGIC := '0';
     signal MemRead_Reg    : STD_LOGIC := '0';
     signal J_Type_Reg     : STD_LOGIC_VECTOR(1 downto 0) := (others => '0');
-    signal STACK_Reg      : STD_LOGIC := '0';
+    signal Stack_en_Reg   : STD_LOGIC := '0';
+    signal Stack_inc_Reg  : STD_LOGIC := '0';
     signal MEM_OP_Reg     : STD_LOGIC := '0';
     signal MEM_SEL_Reg    : STD_LOGIC_VECTOR(1 downto 0) := (others => '0');
     signal OUT_EN_Reg     : STD_LOGIC := '0';
@@ -101,7 +104,7 @@ architecture D_E_ARCH of D_E_Register is
     signal Raddr1_Reg     : STD_LOGIC_VECTOR(2 downto 0)  := (others => '0');
     signal Raddr2_Reg     : STD_LOGIC_VECTOR(2 downto 0)  := (others => '0');
     signal Rdst_Reg       : STD_LOGIC_VECTOR(2 downto 0)  := (others => '0');
-    signal Imm_Reg        : STD_LOGIC_VECTOR(15 downto 0) := (others => '0');
+    signal Imm_Reg        : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
     signal IN_Reg         : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
     signal ALU_B_Reg      : STD_LOGIC := '0';
 
@@ -120,7 +123,8 @@ begin
             WriteData_Reg <= '0';
             MemRead_Reg   <= '0';
             J_Type_Reg    <= (others => '0');
-            STACK_Reg     <= '0';
+            Stack_en_Reg  <= '0';
+            Stack_inc_Reg <= '0';
             MEM_OP_Reg    <= '0';
             MEM_SEL_Reg   <= (others => '0');
             OUT_EN_Reg    <= '0';
@@ -152,7 +156,8 @@ begin
                 WriteData_Reg <= WriteData;
                 MemRead_Reg   <= MemRead;
                 J_Type_Reg    <= J_Type;
-                STACK_Reg     <= STACK;
+                Stack_en_Reg  <= Stack_en;
+                Stack_inc_Reg <= Stack_inc;
                 MEM_OP_Reg    <= MEM_OP;
                 MEM_SEL_Reg   <= MEM_SEL;
                 OUT_EN_Reg    <= OUT_EN;
@@ -189,7 +194,8 @@ begin
     WriteData_Out <= '0' when CLR='1' else WriteData_Reg;
     MemRead_Out   <= '0' when CLR='1' else MemRead_Reg;
     J_Type_Out    <= (others=>'0') when CLR='1' else J_Type_Reg;
-    STACK_Out     <= '0' when CLR='1' else STACK_Reg;
+    Stack_en_Out  <= '0' when CLR='1' else Stack_en_Reg;
+    Stack_inc_Out  <= '0' when CLR='1' else Stack_inc_Reg;
     MEM_OP_Out    <= '0' when CLR='1' else MEM_OP_Reg;
     MEM_SEL_Out   <= (others=>'0') when CLR='1' else MEM_SEL_Reg;
     OUT_EN_Out    <= '0' when CLR='1' else OUT_EN_Reg;

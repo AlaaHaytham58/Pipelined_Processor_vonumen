@@ -52,7 +52,7 @@ architecture Behavioral of M_W_Register is
         signal WE2_Reg       : STD_LOGIC := '0';
         signal IN_Port_Reg   : STD_LOGIC := '0';
         signal LD_DATA_Reg   : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
-        signal Imm_Reg       : STD_LOGIC_VECTOR(15 downto 0) := (others => '0');
+        signal Imm_Reg       : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         signal OUT_EN_Reg    : STD_LOGIC := '0';
 
 begin

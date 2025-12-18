@@ -23,7 +23,7 @@ architecture Behavioral of M_W_Register_tb is
             IN_Port       : in STD_LOGIC;
             RT_ADDR       : in STD_LOGIC_VECTOR(31 downto 0);
             LD_DATA       : in STD_LOGIC_VECTOR(31 downto 0);
-            Imm           : in STD_LOGIC_VECTOR(15 downto 0);
+            Imm           : in STD_LOGIC_VECTOR(31 downto 0);
             OUT_EN        : in STD_LOGIC;
             CLR           : in STD_LOGIC; 
             ALURes_Out    : out STD_LOGIC_VECTOR(31 downto 0);
@@ -37,7 +37,7 @@ architecture Behavioral of M_W_Register_tb is
             WE2_Out       : out STD_LOGIC;
             IN_Port_Out   : out STD_LOGIC;
             LD_DATA_Out   : out STD_LOGIC_VECTOR(31 downto 0);
-            Imm_Out       : out STD_LOGIC_VECTOR(15 downto 0);
+            Imm_Out       : out STD_LOGIC_VECTOR(31 downto 0);
             OUT_EN_Out    : out STD_LOGIC
         );
     end component;
@@ -57,7 +57,7 @@ architecture Behavioral of M_W_Register_tb is
     signal IN_Port       : STD_LOGIC := '0';
     signal RT_ADDR       : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
     signal LD_DATA       : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
-    signal Imm           : STD_LOGIC_VECTOR(15 downto 0) := (others => '0');
+    signal Imm           : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
     signal OUT_EN        : STD_LOGIC := '0';
     signal CLR           : STD_LOGIC := '0';
     
@@ -72,7 +72,7 @@ architecture Behavioral of M_W_Register_tb is
     signal WE2_Out       : STD_LOGIC;
     signal IN_Port_Out   : STD_LOGIC;
     signal LD_DATA_Out   : STD_LOGIC_VECTOR(31 downto 0);
-    signal Imm_Out       : STD_LOGIC_VECTOR(15 downto 0);
+    signal Imm_Out       : STD_LOGIC_VECTOR(31 downto 0);
     signal OUT_EN_Out    : STD_LOGIC;
 
     constant CLK_PERIOD : time := 10 ns;

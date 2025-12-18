@@ -11,13 +11,12 @@ entity Memory is
         Mem_Read   : in std_logic; 
         Mem_Addr   : in std_logic_vector(31 downto 0);   
         Write_data : in std_logic_vector(31 downto 0);
-        Read_data  : out std_logic_vector(31 downto 0);
-       
+        Read_data  : out std_logic_vector(31 downto 0)
     );
 end entity;
 
 architecture ARCH_Memory of Memory is
-    constant MEM_SIZE : integer := 2**20;  
+    constant MEM_SIZE : integer := 2**10;  
     type memory_array is array (0 to MEM_SIZE - 1) of std_logic_vector(31 downto 0);
     signal mem : memory_array := (
         others => (others => '0')

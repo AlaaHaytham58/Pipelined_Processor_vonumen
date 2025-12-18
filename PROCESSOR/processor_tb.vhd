@@ -85,9 +85,9 @@ BEGIN
         
         -- Check final results
         report "Test completed";
-        report "Final PC: " & to_hstring(PC_debug);
-        report "Final OUT_PORT: " & to_hstring(OUT_PORT);
-        report "Final CCR: " & to_string(CCR_debug);
+        -- report "Final PC: " & to_hstring(PC_debug);
+        -- report "Final OUT_PORT: " & to_hstring(OUT_PORT);
+        -- report "Final CCR: " & to_string(CCR_debug);
         
         wait;
     end process;
