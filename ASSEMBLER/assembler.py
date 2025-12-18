@@ -159,23 +159,17 @@ class Assembler:
                 else:
                     imm = format(self.labels[target] & 0xFFFF, '016b')
 
-            self.memory[addr] = f"{opcode}{rsrc1}{rsrc2}{rdst}00{imm}"
+            self.memory[addr] = f"{imm}{rdst}{rsrc2}{rsrc1}{opcode}"
 
     def write_output(self, filename):
         addrs = sorted(self.memory)
+
         with open(filename, 'w') as f:
             f.write("// memory data file\n")
-            f.write("// format=bin addressradix=h dataradix=b wordsperline=4\n\n")
-            line, start, last = [], None, None
+            f.write("// format=bin addressradix=h dataradix=b wordsperline=1\n\n")
+
             for addr in addrs:
-                if start is None or addr != last + 1 or len(line) == 4:
-                    if line:
-                        f.write(f"@{start:X}  " + " ".join(line) + "\n")
-                    line, start = [], addr
-                line.append(self.memory[addr])
-                last = addr
-            if line:
-                f.write(f"@{start:X}  " + " ".join(line) + "\n")
+                f.write(f"@{addr:X}  {self.memory[addr]}\n")
 
     def assemble(self, code):
         self.first_pass(code)
