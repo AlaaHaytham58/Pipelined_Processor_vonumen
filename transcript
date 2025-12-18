@@ -1,14 +1,14 @@
-# vsim work.ALU_TB 
-# Start time: 18:13:52 on Dec 18,2025
+# vsim work.CCR_Reg_TB 
+# Start time: 19:07:00 on Dec 18,2025
 # Loading std.standard
 # Loading std.textio(body)
 # Loading ieee.std_logic_1164(body)
 # Loading ieee.numeric_std(body)
-# Loading work.alu_tb(tb)
-# Loading work.alu(behavioral)
+# Loading work.ccr_reg_tb(tb)
+# Loading work.ccr_reg(rtl)
 add wave *
-run 200 ns
-# ** Note: ALU TESTS PASSED SUCCESSFULLY
-#    Time: 80 ns  Iteration: 0  Instance: /alu_tb
-# End time: 18:14:53 on Dec 18,2025, Elapsed time: 0:01:01
+run 50 ns
+# ** Note: CCR REGISTER TEST PASSED
+#    Time: 30 ns  Iteration: 0  Instance: /ccr_reg_tb
+# End time: 19:08:13 on Dec 18,2025, Elapsed time: 0:01:13
 # Errors: 0, Warnings: 0
