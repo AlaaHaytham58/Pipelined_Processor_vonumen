@@ -121,8 +121,8 @@ class Assembler:
                 rdst = self.reg(parts[0])
 
             elif op in ['MOV', 'SWAP']:
-                rdst = self.reg(parts[0])
-                rsrc1 = self.reg(parts[1])
+                rsrc1 = self.reg(parts[0])
+                rdst = self.reg(parts[1])
 
             elif op in ['ADD', 'SUB', 'AND']:
                 rdst = self.reg(parts[0])

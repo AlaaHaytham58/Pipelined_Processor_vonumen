@@ -50,7 +50,7 @@ architecture ARCH_Memory of Memory is
 		FILE MEMORY_FILE: TEXT;
     BEGIN
        -- OPEN FILE
-        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/Memory.mem",  READ_MODE);
+        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/two_opreand.mem",  READ_MODE);
 
         -- READ FIRST 32 BITS OF STARTING ADDRESS
         READLINE(MEMORY_FILE, TEXT_LINE);
