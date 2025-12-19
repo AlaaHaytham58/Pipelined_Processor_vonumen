@@ -21,7 +21,7 @@ begin
             ccr_reg <= (others => '0');
         elsif rising_edge(clk) then
             if write_en = '1' then
-                ccr_reg <= ccr_next;     -- from ALU or RTI mux
+                ccr_reg <= ccr_next;     -- from ALU or RTI mux maybe
             end if;
         end if;
     end process;
