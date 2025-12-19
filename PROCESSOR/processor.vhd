@@ -47,7 +47,7 @@ ARCHITECTURE processor_arch OF processor IS
     signal Int_Idx, J_Type : std_logic_vector(1 downto 0);
     signal ALU_Op : std_logic_vector(2 downto 0);
     signal Mem_Write_En, Mem_Read_En, Stack_En, PCsrc : std_logic;
-    signal Stack_Inc, Mem_Op : std_logic;
+    signal Stack_Inc,Stack_Dec,  Mem_Op : std_logic;
     signal Mem_Addr_Sel, Mem_Write_Sel : std_logic_vector(1 downto 0);
     signal WE1, WE2, OUT_En, HLT_sig : std_logic;
     signal WB_Wadrr_Sel : std_logic_vector(1 downto 0);
@@ -76,7 +76,7 @@ ARCHITECTURE processor_arch OF processor IS
     signal ID_EX_CCR_En, ID_EX_RTI, ID_EX_Int_Jump, ID_EX_Branch : std_logic;
     signal ID_EX_Int_Idx, ID_EX_J_Type : std_logic_vector(1 downto 0);
     signal ID_EX_Mem_Write_En, ID_EX_Mem_Read_En, ID_EX_Stack_En : std_logic;
-    signal ID_EX_PCsrc, ID_EX_Stack_Inc, ID_EX_Mem_Op, ID_EX_ALU_A, ID_EX_ALU_B : std_logic;
+    signal ID_EX_PCsrc, ID_EX_Stack_Inc,ID_EX_Stack_Dec ,ID_EX_Mem_Op, ID_EX_ALU_A, ID_EX_ALU_B : std_logic;
     signal ID_EX_ALU_Op : std_logic_vector(2 downto 0);
     signal ID_EX_WE1, ID_EX_WE2, ID_EX_OUT_En : std_logic;
     signal ID_EX_WB_Wadrr_Sel : std_logic_vector(1 downto 0);
@@ -87,6 +87,8 @@ ARCHITECTURE processor_arch OF processor IS
     signal ID_EX_IN_PORT : std_logic_vector(31 downto 0);
     signal ID_EX_Wdata_Sel: STD_LOGIC_VECTOR(2 downto 0);
     signal ID_EX_Waddr_Sel: STD_LOGIC_VECTOR(1 downto 0);
+
+
     signal ID_EX_Mem_Addr_Sel : STD_LOGIC_VECTOR(1 downto 0);
     signal ID_EX_Mem_Wdata_Sel : STD_LOGIC_VECTOR(1 downto 0);
     -- EX Stage Signals
@@ -103,7 +105,7 @@ ARCHITECTURE processor_arch OF processor IS
     signal EX_MEM_RegWrite, MEM_WB_RegWrite : std_logic;
 
     -- EX/MEM Pipeline Register Signals
-    signal EX_MEM_Mem_Write_En, EX_MEM_Mem_Read_En, EX_MEM_Stack_En : std_logic;
+    signal EX_MEM_Mem_Write_En, EX_MEM_Mem_Read_En, EX_MEM_Stack_En,EX_MEM_Stack_Dec : std_logic;
     signal EX_MEM_PCsrc, EX_MEM_WE1, EX_MEM_WE2, EX_MEM_OUT_En, EX_MEM_Stack_Inc : std_logic;
     signal EX_MEM_ALU_result, EX_MEM_Rdata1, EX_MEM_Rdata2 : std_logic_vector(31 downto 0);
     signal EX_MEM_Rdst, EX_MEM_Rsrc1, EX_MEM_Rsrc2 : std_logic_vector(2 downto 0);
@@ -310,6 +312,9 @@ BEGIN
             ALU_B => ALU_B,
             WB_Wdata_Sel => WB_Wdata_Sel,
             WB_Waddr_Sel => WB_Wadrr_Sel,
+            Stack_en => Stack_En,
+            Stack_inc => Stack_Inc,
+            Stack_dec => Stack_Dec,
             CCR_EN_Out => ID_EX_CCR_En,
             RTI_Out => ID_EX_RTI,
             INT_Jump_Out => ID_EX_Int_Jump,
@@ -319,8 +324,6 @@ BEGIN
             Mem_Wdata_Sel_Out => ID_EX_Mem_Wdata_Sel,
             MemRead_Out => ID_EX_Mem_Read_En,
             J_Type_Out => ID_EX_J_Type,
-            Stack_en => ID_EX_Stack_En,
-            Stack_inc => Stack_Inc,
             MEM_OP_Out => ID_EX_Mem_Op,
             MEM_SEL_Out => ID_EX_Mem_Addr_Sel,
             OUT_EN_Out => ID_EX_OUT_En,
@@ -332,6 +335,7 @@ BEGIN
             PCSRC_Out => ID_EX_PCsrc,
             Stack_en_Out => ID_EX_Stack_En,
             Stack_Inc_Out => ID_EX_Stack_Inc,
+            Stack_Dec_Out => ID_EX_Stack_Dec,
             PCPlus4_Out => ID_EX_PCPlus4,
             Rdata1_Out => ID_EX_Rdata1,
             Rdata2_Out => ID_EX_Rdata2,
@@ -494,6 +498,7 @@ BEGIN
             PCSRC => ID_EX_PCsrc,
             Stack_En => ID_EX_Stack_En,
             Stack_Inc => ID_EX_Stack_Inc,
+            Stack_Dec => ID_EX_Stack_Dec,
             BR_ADDR => jump_target,
             MEM_W => ID_EX_Mem_Write_En,
             Imm => ID_EX_imm,
@@ -515,6 +520,7 @@ BEGIN
             PCSRC_Out => open,
             Stack_en_Out => EX_MEM_Stack_En,
             Stack_inc_Out => EX_MEM_Stack_Inc,
+            Stack_dec_Out => EX_MEM_Stack_Dec,
             BR_ADDR_Out => EX_MEM_BR_ADDR,
             Rdata1_Out => EX_MEM_Rdata1,
             Rdata2_Out => EX_MEM_Rdata2,
@@ -534,7 +540,7 @@ BEGIN
     -- ====== MEMORY ======
 
     -- Stack Pointer
-    SP_enable <= EX_MEM_Stack_En;
+   -- SP_enable <= EX_MEM_Stack_En;
 
 STACK_inst: entity work.STACK
     Port Map(
@@ -542,6 +548,8 @@ STACK_inst: entity work.STACK
         reset => reset,
         SP_enable => EX_MEM_Stack_En,
         SP_INC => EX_MEM_Stack_Inc,
+        SP_INC => EX_MEM_Stack_Inc,
+        SP_DEC => EX_MEM_Stack_Dec,
         SP_out => SP_value
     );
 

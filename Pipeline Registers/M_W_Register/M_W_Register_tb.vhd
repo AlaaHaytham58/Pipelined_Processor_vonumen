@@ -25,7 +25,7 @@ architecture Behavioral of M_W_Register_tb is
             LD_DATA       : in STD_LOGIC_VECTOR(31 downto 0);
             Imm           : in STD_LOGIC_VECTOR(31 downto 0);
             OUT_EN        : in STD_LOGIC;
-            CLR           : in STD_LOGIC; 
+            CLR           : in STD_LOGIC;
             ALURes_Out    : out STD_LOGIC_VECTOR(31 downto 0);
             Raddr1_Out    : out STD_LOGIC_VECTOR(2 downto 0);
             Raddr2_Out    : out STD_LOGIC_VECTOR(2 downto 0);
@@ -60,7 +60,7 @@ architecture Behavioral of M_W_Register_tb is
     signal Imm           : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
     signal OUT_EN        : STD_LOGIC := '0';
     signal CLR           : STD_LOGIC := '0';
-    
+
     signal ALURes_Out    : STD_LOGIC_VECTOR(31 downto 0);
     signal Raddr1_Out    : STD_LOGIC_VECTOR(2 downto 0);
     signal Raddr2_Out    : STD_LOGIC_VECTOR(2 downto 0);
@@ -137,12 +137,12 @@ begin
         Raddr1 <= "101";
         LD_DATA <= X"CAFEBABE";
         wait for CLK_PERIOD;
-        
+
         assert ALURes_Out = X"00000000" report "Reset failed for ALURes_Out" severity error;
         assert Raddr1_Out = "000" report "Reset failed for Raddr1_Out" severity error;
         assert LD_DATA_Out = X"00000000" report "Reset failed for LD_DATA_Out" severity error;
         report "TEST 1: PASSED";
-        
+
         RST <= '0';
         wait for CLK_PERIOD;
 
@@ -160,11 +160,11 @@ begin
         WE2 <= '0';
         IN_Port <= '1';
         LD_DATA <= X"AABBCCDD";
-        Imm <= X"ABCD";
+        Imm <= X"0000ABCD";
         OUT_EN <= '1';
-        
+
         wait for CLK_PERIOD;
-        
+
         assert ALURes_Out = X"12345678" report "Failed to register ALURes" severity error;
         assert Raddr1_Out = "011" report "Failed to register Raddr1" severity error;
         assert Raddr2_Out = "101" report "Failed to register Raddr2" severity error;
@@ -181,9 +181,9 @@ begin
         ALURes <= X"FFFFFFFF";
         Raddr1 <= "000";
         LD_DATA <= X"99999999";
-        
+
         wait for CLK_PERIOD;
-        
+
         assert ALURes_Out = X"12345678" report "EN=0 failed: ALURes changed" severity error;
         assert Raddr1_Out = "011" report "EN=0 failed: Raddr1 changed" severity error;
         assert LD_DATA_Out = X"AABBCCDD" report "EN=0 failed: LD_DATA changed" severity error;
@@ -192,19 +192,19 @@ begin
         -- Test 4: Multiple consecutive writes
         report "TEST 4: Multiple consecutive writes";
         EN <= '1';
-        
+
         ALURes <= X"AAAA1111";
         Rdst <= "001";
         wait for CLK_PERIOD;
         assert ALURes_Out = X"AAAA1111" report "Write 1 failed" severity error;
         assert Rdst_Out = "001" report "Write 1 Rdst failed" severity error;
-        
+
         ALURes <= X"BBBB2222";
         Rdst <= "010";
         wait for CLK_PERIOD;
         assert ALURes_Out = X"BBBB2222" report "Write 2 failed" severity error;
         assert Rdst_Out = "010" report "Write 2 Rdst failed" severity error;
-        
+
         report "TEST 4: PASSED";
 
         -- Test 5: All control signals
@@ -213,9 +213,9 @@ begin
         WE2 <= '1';
         IN_Port <= '1';
         OUT_EN <= '0';
-        
+
         wait for CLK_PERIOD;
-        
+
         assert WE1_Out = '0' report "Control signal WE1 failed" severity error;
         assert WE2_Out = '1' report "Control signal WE2 failed" severity error;
         assert IN_Port_Out = '1' report "Control signal IN_Port failed" severity error;
@@ -229,10 +229,10 @@ begin
         Rdata2 <= X"FFFFFFFF";
         RT_ADDR <= X"FFFFFFFF";
         LD_DATA <= X"00000000";
-        Imm <= X"0000";
-        
+        Imm <= X"00000000";
+
         wait for CLK_PERIOD;
-        
+
         assert ALURes_Out = X"00000000" report "Min value test failed" severity error;
         assert Rdata2_Out = X"FFFFFFFF" report "Max value test failed" severity error;
         assert RT_ADDR_Out = X"FFFFFFFF" report "RT_ADDR max value failed" severity error;
@@ -241,7 +241,7 @@ begin
         report "======================================";
         report "ALL TESTS COMPLETED SUCCESSFULLY!";
         report "======================================";
-        
+
         test_complete <= true;
         wait;
     end process;

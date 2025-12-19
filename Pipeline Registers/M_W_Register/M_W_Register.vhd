@@ -64,7 +64,7 @@ begin
     -- Register inputs on rising edge
     process (CLK, RST)
     begin
-        if RST = '1' then
+        if RST = '1' or (rising_edge(CLK) and CLR = '1') then
             ALURes_Reg    <= (others => '0');
             Raddr1_Reg    <= (others => '0');
             Raddr2_Reg    <= (others => '0');

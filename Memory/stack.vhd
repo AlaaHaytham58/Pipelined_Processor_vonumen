@@ -9,12 +9,13 @@ entity STACK is
         reset       : in  std_logic;
         SP_enable   : in  std_logic;
         SP_INC      : in  std_logic;  
+        SP_DEC      : in  std_logic;
         SP_out      : out std_logic_vector(31 downto 0)  
     );
 end STACK;
 
 architecture ARCH_SP of STACK is
-    constant SP_INITIAL : std_logic_vector(31 downto 0) := x"000003FC";  
+    constant SP_INITIAL : std_logic_vector(31 downto 0) := x"000003FF";  
     signal SP_reg  : std_logic_vector(31 downto 0) := SP_INITIAL;
     signal SP_next : std_logic_vector(31 downto 0);
     
@@ -23,10 +24,10 @@ begin
     begin
             if SP_INC = '1' then
                 -- Increment by 4 (word addressing)
-                SP_next <= std_logic_vector(unsigned(SP_reg) + 4);
+                SP_next <= std_logic_vector(unsigned(SP_reg) + 1);
             elsif SP_INC = '0' then
                 -- Decrement by 4 (word addressing)
-                SP_next <= std_logic_vector(unsigned(SP_reg) - 4);
+                SP_next <= std_logic_vector(unsigned(SP_reg) - 1);
             end if;
     end process;
 
