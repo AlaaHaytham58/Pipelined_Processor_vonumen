@@ -1,14 +1,15 @@
-# vsim work.CCR_Reg_TB 
-# Start time: 19:07:00 on Dec 18,2025
+# vsim work.CCR_Top_tb 
 # Loading std.standard
 # Loading std.textio(body)
 # Loading ieee.std_logic_1164(body)
+# Loading work.ccr_top_tb(tb)
 # Loading ieee.numeric_std(body)
-# Loading work.ccr_reg_tb(tb)
+# Loading work.ccr_top(structural)
 # Loading work.ccr_reg(rtl)
+# Loading work.ccr_reserved(rtl)
+add wave -position insertpoint sim:/ccr_top_tb/*
 add wave *
-run 50 ns
-# ** Note: CCR REGISTER TEST PASSED
-#    Time: 30 ns  Iteration: 0  Instance: /ccr_reg_tb
-# End time: 19:08:13 on Dec 18,2025, Elapsed time: 0:01:13
-# Errors: 0, Warnings: 0
+run 200 ns
+# ** Failure: ALL CCR TESTS PASSED SUCCESSFULLY
+#    Time: 100 ns  Iteration: 0  Process: /ccr_top_tb/stim_proc File: ./ASSEMBLER/CCR_TOP_tb.vhd
+# Break in Process stim_proc at ./ASSEMBLER/CCR_TOP_tb.vhd line 140
