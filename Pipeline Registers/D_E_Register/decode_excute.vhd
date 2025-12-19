@@ -20,6 +20,7 @@ entity D_E_Register is
         J_Type     : in  STD_LOGIC_VECTOR(1 downto 0);
         Stack_en   : in  STD_LOGIC;
         Stack_inc  : in  STD_LOGIC; 
+        Stack_Dec  : in  STD_LOGIC; 
         MEM_OP     : in  STD_LOGIC;
         MEM_SEL    : in  STD_LOGIC_VECTOR(1 downto 0);
         OUT_EN     : in  STD_LOGIC;
@@ -55,6 +56,7 @@ entity D_E_Register is
         J_Type_Out    : out STD_LOGIC_VECTOR(1 downto 0);
         Stack_en_Out  : out STD_LOGIC;
         Stack_inc_Out : out STD_LOGIC;
+        Stack_Dec_Out  : out  STD_LOGIC;
         MEM_OP_Out    : out STD_LOGIC;
         MEM_SEL_Out   : out STD_LOGIC_VECTOR(1 downto 0);
         OUT_EN_Out    : out STD_LOGIC;
@@ -91,6 +93,7 @@ architecture D_E_ARCH of D_E_Register is
     signal J_Type_Reg     : STD_LOGIC_VECTOR(1 downto 0) := (others => '0');
     signal Stack_en_Reg   : STD_LOGIC := '0';
     signal Stack_inc_Reg  : STD_LOGIC := '0';
+    signal Stack_dec_Reg  : STD_LOGIC := '0';
     signal MEM_OP_Reg     : STD_LOGIC := '0';
     signal MEM_SEL_Reg    : STD_LOGIC_VECTOR(1 downto 0) := (others => '0');
     signal OUT_EN_Reg     : STD_LOGIC := '0';
@@ -130,6 +133,7 @@ begin
             J_Type_Reg    <= (others => '0');
             Stack_en_Reg  <= '0';
             Stack_inc_Reg <= '0';
+            Stack_dec_Reg <= '0';
             MEM_OP_Reg    <= '0';
             MEM_SEL_Reg   <= (others => '0');
             OUT_EN_Reg    <= '0';
@@ -164,6 +168,7 @@ begin
                 J_Type_Reg    <= J_Type;
                 Stack_en_Reg  <= Stack_en;
                 Stack_inc_Reg <= Stack_inc;
+                Stack_dec_Reg <= Stack_dec;
                 MEM_OP_Reg    <= MEM_OP;
                 MEM_SEL_Reg   <= MEM_SEL;
                 OUT_EN_Reg    <= OUT_EN;
@@ -193,37 +198,38 @@ begin
     -- 
     -- flush
     
-    CCR_EN_Out    <= '0' when CLR='1' else CCR_EN_Reg;
-    RTI_Out       <= '0' when CLR='1' else RTI_Reg;
-    INT_Jump_Out  <= '0' when CLR='1' else INT_Jump_Reg;
-    INT_IDX_Out   <= (others=>'0') when CLR='1' else INT_IDX_Reg;
-    MEM_W_Out     <= '0' when CLR='1' else MEM_W_Reg;
-    Branch_Out    <= '0' when CLR='1' else Branch_Reg;
-    Mem_Wdata_Sel_Out <= "00" when CLR='1' else Mem_Wdata_Sel_Reg;
-    MemRead_Out   <= '0' when CLR='1' else MemRead_Reg;
-    J_Type_Out    <= (others=>'0') when CLR='1' else J_Type_Reg;
-    Stack_en_Out  <= '0' when CLR='1' else Stack_en_Reg;
-    Stack_inc_Out  <= '0' when CLR='1' else Stack_inc_Reg;
-    MEM_OP_Out    <= '0' when CLR='1' else MEM_OP_Reg;
-    MEM_SEL_Out   <= (others=>'0') when CLR='1' else MEM_SEL_Reg;
-    OUT_EN_Out    <= '0' when CLR='1' else OUT_EN_Reg;
-    ALU_A_Out     <= '0' when CLR='1' else ALU_A_Reg;
-    ALUOp_Out     <= (others=>'0') when CLR='1' else ALUOp_Reg;
-    WE1_Out       <= '0' when CLR='1' else WE1_Reg;
-    WE2_Out       <= '0' when CLR='1' else WE2_Reg;
-    MEM_R_Out     <= '0' when CLR='1' else MEM_R_Reg;
-    PCSRC_Out     <= '0' when CLR='1' else PCSRC_Reg;
+    CCR_EN_Out    <=  CCR_EN_Reg;
+    RTI_Out       <=  RTI_Reg;
+    INT_Jump_Out  <=  INT_Jump_Reg;
+    INT_IDX_Out   <=  INT_IDX_Reg;
+    MEM_W_Out     <=  MEM_W_Reg;
+    Branch_Out    <=  Branch_Reg;
+    Mem_Wdata_Sel_Out <=  Mem_Wdata_Sel_Reg;
+    MemRead_Out   <=  MemRead_Reg;
+    J_Type_Out    <=  J_Type_Reg;
+    Stack_en_Out  <=  Stack_en_Reg;
+    Stack_inc_Out  <=  Stack_inc_Reg;
+    Stack_Dec_Out <= Stack_dec_Reg;
+    MEM_OP_Out    <=  MEM_OP_Reg;
+    MEM_SEL_Out   <=  MEM_SEL_Reg;
+    OUT_EN_Out    <=  OUT_EN_Reg;
+    ALU_A_Out     <=  ALU_A_Reg;
+    ALUOp_Out     <=  ALUOp_Reg;
+    WE1_Out       <=  WE1_Reg;
+    WE2_Out       <=  WE2_Reg;
+    MEM_R_Out     <=  MEM_R_Reg;
+    PCSRC_Out     <=  PCSRC_Reg;
 
-    PCPlus4_Out <= (others=>'0') when CLR='1' else PCPlus4_Reg;
-    Rdata1_Out  <= (others=>'0') when CLR='1' else Rdata1_Reg;
-    Rdata2_Out  <= (others=>'0') when CLR='1' else Rdata2_Reg;
-    Raddr1_Out  <= (others=>'0') when CLR='1' else Raddr1_Reg;
-    Raddr2_Out  <= (others=>'0') when CLR='1' else Raddr2_Reg;
-    Rdst_Out    <= (others=>'0') when CLR='1' else Rdst_Reg;
-    Imm_Out     <= (others=>'0') when CLR='1' else Imm_Reg;
-    IN_Out      <= (others=>'0') when CLR='1' else IN_Reg;
-    ALU_B_Out   <= '0' when CLR='1' else ALU_B_Reg;
-    WB_Wdata_Sel_Out <= "000" when CLR = '1' else WB_Wdata_Sel_Reg;
-    WB_Waddr_Sel_Out <= "000" when CLR = '1' else WB_Waddr_Sel_Reg;
+    PCPlus4_Out <=  PCPlus4_Reg;
+    Rdata1_Out  <=  Rdata1_Reg;
+    Rdata2_Out  <=  Rdata2_Reg;
+    Raddr1_Out  <=  Raddr1_Reg;
+    Raddr2_Out  <=  Raddr2_Reg;
+    Rdst_Out    <=  Rdst_Reg;
+    Imm_Out     <=  Imm_Reg;
+    IN_Out      <=  IN_Reg;
+    ALU_B_Out   <=  ALU_B_Reg;
+    WB_Wdata_Sel_Out <=  WB_Wdata_Sel_Reg;
+    WB_Waddr_Sel_Out <=  WB_Waddr_Sel_Reg;
     
 end D_E_ARCH;
