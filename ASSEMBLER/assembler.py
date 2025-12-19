@@ -143,8 +143,8 @@ class Assembler:
                 imm = self.imm(parts[1])
 
             elif op == 'LDD':
-                rsrc1 = self.reg(parts[0])
-                rdst = self.reg(parts[1])
+                rdst = self.reg(parts[0])
+                rsrc1 = self.reg(parts[1])
                 imm = self.imm(parts[2])
 
             elif op == 'STD':
@@ -165,11 +165,9 @@ class Assembler:
         addrs = sorted(self.memory)
 
         with open(filename, 'w') as f:
-            f.write("// memory data file\n")
-            f.write("// format=bin addressradix=h dataradix=b wordsperline=1\n\n")
-
             for addr in addrs:
-                f.write(f"@{addr:X}  {self.memory[addr]}\n")
+                f.write(self.memory[addr] + "\n")
+
 
     def assemble(self, code):
         self.first_pass(code)
