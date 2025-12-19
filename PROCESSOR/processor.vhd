@@ -85,7 +85,10 @@ ARCHITECTURE processor_arch OF processor IS
     signal ID_EX_Rsrc1, ID_EX_Rsrc2, ID_EX_Rdst : std_logic_vector(2 downto 0);
     signal ID_EX_imm, ID_EX_offset : std_logic_vector(31 downto 0);
     signal ID_EX_IN_PORT : std_logic_vector(31 downto 0);
-    
+    signal ID_EX_Wdata_Sel: STD_LOGIC_VECTOR(2 downto 0);
+    signal ID_EX_Waddr_Sel: STD_LOGIC_VECTOR(1 downto 0);
+    signal ID_EX_Mem_Addr_Sel : STD_LOGIC_VECTOR(1 downto 0);
+    signal ID_EX_Mem_Wdata_Sel : STD_LOGIC_VECTOR(1 downto 0);
     -- EX Stage Signals
     signal ALU_op1, ALU_op2, ALU_result : std_logic_vector(31 downto 0);
     signal CCR_updated : std_logic_vector(3 downto 0);
@@ -105,6 +108,11 @@ ARCHITECTURE processor_arch OF processor IS
     signal EX_MEM_imm : std_logic_vector(31 downto 0);
     signal EX_MEM_PCPlus4 : std_logic_vector(31 downto 0);
     signal EX_MEM_BR_ADDR : std_logic_vector(31 downto 0);
+    signal EX_MEM_Waddr_Sel: STD_LOGIC_VECTOR(1 downto 0);
+    signal EX_MEM_Wdata_Sel: STD_LOGIC_VECTOR(2 downto 0);
+    signal EX_MEM_Mem_Op : STD_LOGIC;
+    signal EX_MEM_Mem_Addr_Sel : STD_LOGIC_VECTOR(1 downto 0);
+    signal EX_MEM_Mem_Wdata_Sel : STD_LOGIC_VECTOR(1 downto 0);
     
     -- MEM Stage Signals
     signal Mem_Addr, Mem_Write_Data, Mem_Read_Data : std_logic_vector(31 downto 0);
@@ -114,11 +122,13 @@ ARCHITECTURE processor_arch OF processor IS
     -- MEM/WB Pipeline Register Signals
     signal MEM_WB_WE1, MEM_WB_WE2, MEM_WB_OUT_En : std_logic;
     signal MEM_WB_ALU_result, MEM_WB_Mem_Data, MEM_WB_Rdata1 : std_logic_vector(31 downto 0);
-    signal MEM_WB_Rdst : std_logic_vector(2 downto 0);
+    signal MEM_WB_Rdst,MEM_WB_Rsrc1,MEM_WB_Rsrc2 : std_logic_vector(2 downto 0);
     signal MEM_WB_imm : std_logic_vector(31 downto 0);
     signal MEM_WB_IN_PORT : std_logic_vector(31 downto 0);
-    signal MEM_WB_WB_Wdata_Sel : std_logic_vector(2 downto 0);
+    signal MEM_WB_Wdata_Sel : std_logic_vector(2 downto 0);
+    signal MEM_WB_Waddr_Sel : std_logic_vector(1 downto 0);
     
+
     -- WB Stage Signals
     signal WB_Write_Data, WB_Write_Addr : std_logic_vector(31 downto 0);
     signal WB_WE, WB_WE2_sig : std_logic;
@@ -163,7 +173,7 @@ BEGIN
             EN => IF_ID_Write,
             CLR => IF_ID_Flush,
             Inst => Mem_Read_Data,
-            PCPlus4 => PC_plus_4,
+            PCPlus4 => PC_value,
             IN_Port => IN_PORT,
             Inst_Out => IF_ID_Inst,
             PCPlus4_Out => IF_ID_PCPlus4,
@@ -213,7 +223,7 @@ BEGIN
 
     -- 1. Mux for Raddr1 selection (Raddr_Sel)
     -- 0: Read from Rsrc1, 1: Read from Rdst
-    Raddr1_selected <= Rsrc1 when Raddr_Sel = '0' else Rdst;
+    Raddr1_selected <= Rdst when opcode(2) = '1' or opcode(2 downto 0) = "011"  else Rsrc1;
     
     -- 2. Register File with correct connections
     Register_file_inst: entity work.Register_file
@@ -251,9 +261,11 @@ BEGIN
             IF_ID_Rsrc2 => Rsrc2,      
             Branch => Branch_sig,
             Jump => PCsrc,
+            Mem_Op => EX_MEM_Mem_Op,
             PC_Write => PC_write_enable,
             IF_ID_Write => IF_ID_Write,
-            Control_Mux => control_mux
+            Control_Mux => control_mux,
+            IF_ID_CLR => IF_ID_Flush
         );
     
     PC_stall <= not PC_write_enable;
@@ -273,7 +285,7 @@ BEGIN
             INT_IDX => Int_Idx,
             MEM_W => Mem_Write_En,
             Branch => Branch_sig,
-            WriteData => '0',  
+            Mem_Wdata_Sel => Mem_Write_Sel,  
             MemRead => Mem_Read_En,
             J_Type => J_Type,
             MEM_OP => Mem_Op,
@@ -294,19 +306,21 @@ BEGIN
             Imm => imm_extended,
             IN_Port => IF_ID_IN_PORT,
             ALU_B => ALU_B,
+            WB_Wdata_Sel => WB_Wdata_Sel,
+            WB_Waddr_Sel => WB_Wadrr_Sel,
             CCR_EN_Out => ID_EX_CCR_En,
             RTI_Out => ID_EX_RTI,
             INT_Jump_Out => ID_EX_Int_Jump,
             INT_IDX_Out => ID_EX_Int_Idx,
             MEM_W_Out => ID_EX_Mem_Write_En,
             Branch_Out => ID_EX_Branch,
-            WriteData_Out => open,
+            Mem_Wdata_Sel_Out => ID_EX_Mem_Wdata_Sel,
             MemRead_Out => ID_EX_Mem_Read_En,
             J_Type_Out => ID_EX_J_Type,
             Stack_en => ID_EX_Stack_En,
             Stack_inc => Stack_Inc,
             MEM_OP_Out => ID_EX_Mem_Op,
-            MEM_SEL_Out => open,
+            MEM_SEL_Out => ID_EX_Mem_Addr_Sel,
             OUT_EN_Out => ID_EX_OUT_En,
             ALU_A_Out => ID_EX_ALU_A,
             ALUOp_Out => ID_EX_ALU_Op,
@@ -324,7 +338,9 @@ BEGIN
             Rdst_Out => ID_EX_Rdst,
             Imm_Out => ID_EX_imm,
             IN_Out => ID_EX_IN_PORT,
-            ALU_B_Out => ID_EX_ALU_B
+            ALU_B_Out => ID_EX_ALU_B,
+            WB_Waddr_Sel_Out => ID_EX_Waddr_Sel,
+            WB_Wdata_Sel_Out => ID_EX_Wdata_Sel
         );
     
     -- ====== EXECUTE ======
@@ -422,15 +438,15 @@ BEGIN
             EN => '1',
             MemRead => ID_EX_Mem_Read_En,
             MEM_OP => ID_EX_Mem_Op,
-            MEM_SEL => '0',  
+            MEM_SEL => ID_EX_Mem_Addr_Sel,  
             MEM_R => '0',
             ALURes => ALU_result,
             Raddr1 => ID_EX_Rsrc1,     
             Raddr2 => ID_EX_Rsrc2,     
             Rdst => ID_EX_Rdst,
-            Rdata1 => ID_EX_Rdata1,
-            Rdata2 => ID_EX_Rdata2,
-            WriteData => '0',
+            Rdata1 => ALU_op1,
+            Rdata2 => ALU_op2,
+            Mem_Wdata_Sel => ID_EX_Mem_Wdata_Sel,
             WE1 => ID_EX_WE1,
             WE2 => ID_EX_WE2,
             IN_Port => '0',
@@ -443,9 +459,12 @@ BEGIN
             OUT_EN => ID_EX_OUT_En,
             CLR => '0',
             PCPlus4 => ID_EX_PCPlus4,
+            WB_Waddr_Sel => ID_EX_Waddr_Sel,
+            WB_Wdata_Sel => ID_EX_Wdata_Sel,
+
             MemRead_Out => EX_MEM_Mem_Read_En,
-            MEM_OP_Out => open,
-            MEM_SEL_Out => open,
+            MEM_OP_Out => EX_MEM_Mem_Op,
+            MEM_SEL_Out => EX_MEM_Mem_Addr_Sel,
             MEM_R_Out => open,
             ALURes_Out => EX_MEM_ALU_result,
             Raddr1_Out => EX_MEM_Rsrc1,    
@@ -458,13 +477,15 @@ BEGIN
             BR_ADDR_Out => EX_MEM_BR_ADDR,
             Rdata1_Out => EX_MEM_Rdata1,
             Rdata2_Out => EX_MEM_Rdata2,
-            WriteData_Out => open,
+            Mem_Wdata_Sel_Out => EX_MEM_Mem_Wdata_Sel,
             WE1_Out => EX_MEM_WE1,
             WE2_Out => EX_MEM_WE2,
             MEM_W_Out => EX_MEM_Mem_Write_En,
             IN_Port_Out => open,
             Imm_Out => EX_MEM_imm,
-            OUT_EN_Out => EX_MEM_OUT_En
+            OUT_EN_Out => EX_MEM_OUT_En,
+            WB_Waddr_Sel_Out => EX_MEM_Waddr_Sel,
+            WB_Wdata_Sel_out => EX_MEM_Wdata_Sel
         );
     
     EX_MEM_RegWrite <= EX_MEM_WE1;
@@ -484,20 +505,20 @@ STACK_inst: entity work.STACK
     );
     
     -- Memory Address Mux
-    process(Mem_Addr_Sel, EX_MEM_ALU_result, SP_value, EX_MEM_PCPlus4)
+    process(EX_MEM_Mem_Addr_Sel, EX_MEM_ALU_result, SP_value, PC_value)
     begin
-        case Mem_Addr_Sel is
-            when "00" =>   Mem_Addr <= EX_MEM_PCPlus4;
+        case EX_MEM_Mem_Addr_Sel is
+            when "00" =>   Mem_Addr <= PC_value;
             when "01" =>   Mem_Addr <= EX_MEM_ALU_result;
             when "10" =>   Mem_Addr <= SP_value;
-            when others => Mem_Addr <= EX_MEM_PCPlus4;
+            when others => Mem_Addr <= PC_value;
         end case;
     end process;
     
     -- Memory Write Data Mux
-    process(Mem_Write_Sel, EX_MEM_Rdata1, EX_MEM_Rdata2, EX_MEM_PCPlus4)
+    process(EX_MEM_Mem_Wdata_Sel, EX_MEM_Rdata1, EX_MEM_Rdata2, EX_MEM_PCPlus4)
     begin
-        case Mem_Write_Sel is
+        case EX_MEM_Mem_Wdata_Sel is
             when "00" =>   Mem_Write_Data <= EX_MEM_Rdata1;
             when "01" =>   Mem_Write_Data <= EX_MEM_Rdata2;
             when "10" =>   Mem_Write_Data <= EX_MEM_PCPlus4;
@@ -513,8 +534,8 @@ STACK_inst: entity work.STACK
             RST => reset,
             EN => '1',
             ALURes => EX_MEM_ALU_result,
-            Raddr1 => EX_MEM_Rdst,
-            Raddr2 => (others => '0'),
+            Raddr1 => EX_MEM_Rsrc1,
+            Raddr2 => EX_MEM_Rsrc2,
             Rdst => EX_MEM_Rdst,
             Rdata1 => EX_MEM_Rdata1,
             Rdata2 => EX_MEM_Rdata2,
@@ -526,9 +547,12 @@ STACK_inst: entity work.STACK
             Imm => EX_MEM_imm,
             OUT_EN => EX_MEM_OUT_En,
             CLR => '0',
+            WB_Waddr_Sel => EX_MEM_Waddr_Sel,
+            WB_Wdata_Sel => EX_MEM_Wdata_Sel,
+
             ALURes_Out => MEM_WB_ALU_result,
-            Raddr1_Out => open,
-            Raddr2_Out => open,
+            Raddr1_Out => MEM_WB_Rsrc1,
+            Raddr2_Out => MEM_WB_Rsrc2,
             Rdst_Out => MEM_WB_Rdst,
             RT_ADDR_Out => open,
             Rdata1_Out => MEM_WB_Rdata1,
@@ -538,7 +562,9 @@ STACK_inst: entity work.STACK
             IN_Port_Out => open,
             LD_DATA_Out => MEM_WB_Mem_Data,
             Imm_Out => MEM_WB_imm,
-            OUT_EN_Out => MEM_WB_OUT_En
+            OUT_EN_Out => MEM_WB_OUT_En,
+            WB_Waddr_Sel_Out => MEM_WB_Waddr_Sel,
+            WB_Wdata_Sel_Out => MEM_WB_Wdata_Sel
         );
     
     MEM_WB_RegWrite <= MEM_WB_WE1;
@@ -547,10 +573,10 @@ STACK_inst: entity work.STACK
     
     -- 000: ALURes, 001: Rdata1, 010: Rdata2, 011: IMM, 100: ALURes, 101: LD_Data, 110: IN, 111: N/A
     -- Write Back Data Mux 
-    process(WB_Wdata_Sel, MEM_WB_ALU_result, MEM_WB_Rdata1, MEM_WB_Mem_Data, 
+    process(MEM_WB_Wdata_Sel, MEM_WB_ALU_result, MEM_WB_Rdata1, MEM_WB_Mem_Data, 
             MEM_WB_imm, IN_PORT, MEM_WB_IN_PORT)
     begin
-        case WB_Wdata_Sel is
+        case MEM_WB_Wdata_Sel is
             when "000" =>   Reg_Wdata1 <= MEM_WB_ALU_result;
             when "001" =>   Reg_Wdata1 <= MEM_WB_Rdata1;
             when "010" =>   Reg_Wdata1 <= (others => '0');
@@ -563,12 +589,12 @@ STACK_inst: entity work.STACK
     end process;
     
     -- Write Back Address Mux
-    process(WB_Wadrr_Sel, MEM_WB_Rdst, ID_EX_Rsrc1, ID_EX_Rdst)
+    process(MEM_WB_Waddr_Sel, MEM_WB_Rdst, MEM_WB_Rsrc1, MEM_WB_Rsrc2)
     begin
-        case WB_Wadrr_Sel is
+        case MEM_WB_Waddr_Sel is
             when "00" =>   Reg_Waddr1 <= MEM_WB_Rdst;
-            when "01" =>   Reg_Waddr1 <= ID_EX_Rsrc1;    
-            when "10" =>   Reg_Waddr1 <= ID_EX_Rdst;
+            when "01" =>   Reg_Waddr1 <= MEM_WB_Rsrc1;    
+            when "10" =>   Reg_Waddr1 <= MEM_WB_Rsrc2;
             when others => Reg_Waddr1 <= MEM_WB_Rdst;
         end case;
     end process;
@@ -595,6 +621,7 @@ STACK_inst: entity work.STACK
     PC_we <= '1' when PCsrc = '1' and branch_taken = '1' else '0';
     
     -- Flush IF/ID on branch
-    IF_ID_Flush <= '1' when (PCsrc = '1' and branch_taken = '1') else '0';
+    --IF_ID_Flush <= '0';
+    --IF_ID_Flush <= '1' when (PCsrc = '1' and branch_taken = '1') else '0';
     
 END processor_arch;

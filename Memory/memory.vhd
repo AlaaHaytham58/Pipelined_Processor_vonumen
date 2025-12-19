@@ -2,7 +2,7 @@ library ieee;
 use ieee.numeric_std.all;
 use IEEE.STD_LOGIC_1164.all;
 use STD.TEXTIO.all;
-use ieee.numeric_std_unsigned;
+use ieee.numeric_std.all;
 
 entity Memory is
     port (
@@ -21,6 +21,25 @@ architecture ARCH_Memory of Memory is
     constant MEM_SIZE : integer := 2**10;  
     type memory_array is array (0 to MEM_SIZE - 1) of std_logic_vector(31 downto 0);
 
+    IMPURE FUNCTION GET_START_ADDR RETURN std_logic_vector IS
+		VARIABLE TEXT_LINE : LINE;
+        VARIABLE STARTING_ADDRESS: std_logic_vector(31 downto 0);
+        VARIABLE BINARY_TEXT_LINE : BIT_VECTOR(31 DOWNTO 0);
+		FILE MEMORY_FILE: TEXT;
+    BEGIN 
+        -- OPEN FILE
+        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/Memory.mem",  READ_MODE);
+
+        -- READ FIRST 32 BITS OF STARTING ADDRESS
+        READLINE(MEMORY_FILE, TEXT_LINE);
+        READ(TEXT_LINE, BINARY_TEXT_LINE);
+
+	    -- REPORT "TEXT_LINE: "& INTEGER'IMAGE(TO_INTEGER(UNSIGNED(TO_STDLOGICVECTOR(BINARY_TEXT_LINE))));
+        STARTING_ADDRESS := TO_STDLOGICVECTOR(BINARY_TEXT_LINE);
+        FILE_CLOSE(MEMORY_FILE);
+        RETURN STARTING_ADDRESS;
+    END FUNCTION GET_START_ADDR;
+
     IMPURE FUNCTION FILL_MEMORY RETURN memory_array IS
 		VARIABLE MEMORY_CONTENT : memory_array;
 		VARIABLE TEXT_LINE : LINE;
@@ -30,14 +49,16 @@ architecture ARCH_Memory of Memory is
         VARIABLE BINARY_TEXT_LINE : BIT_VECTOR(31 DOWNTO 0);
 		FILE MEMORY_FILE: TEXT;
     BEGIN
-        -- OPEN FILE
+       -- OPEN FILE
         FILE_OPEN(MEMORY_FILE, "ASSEMBLER/Memory.mem",  READ_MODE);
 
-        -- READ 32 BITS OF STARTING ADDRESS
+        -- READ FIRST 32 BITS OF STARTING ADDRESS
         READLINE(MEMORY_FILE, TEXT_LINE);
         READ(TEXT_LINE, BINARY_TEXT_LINE);
+	    -- REPORT "TEXT_LINE: "& INTEGER'IMAGE(TO_INTEGER(UNSIGNED(TO_STDLOGICVECTOR(BINARY_TEXT_LINE))));
+        STARTING_ADDRESS(31 DOWNTO 0) := TO_STDLOGICVECTOR(BINARY_TEXT_LINE); 
 
-        COUNT := 0;
+        COUNT := TO_INTEGER(UNSIGNED(STARTING_ADDRESS));
         
         WHILE NOT ENDFILE(MEMORY_FILE) LOOP
             READLINE(MEMORY_FILE, TEXT_LINE);
@@ -55,7 +76,7 @@ architecture ARCH_Memory of Memory is
     signal mem : memory_array := FILL_MEMORY;
 begin
     -- read for data memory 
-    Read_data <=  mem(to_integer(unsigned(Mem_Addr)));
+    Read_data <= mem(to_integer(unsigned(Mem_Addr)));
     --mem(0) when reset = '1' else
     -- write
     process(clk, reset)

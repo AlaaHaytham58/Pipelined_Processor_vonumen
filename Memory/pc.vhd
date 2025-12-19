@@ -21,7 +21,7 @@ architecture PC_ARCH of PC_Unit is
     signal NextPC     : std_logic_vector(31 downto 0);
 
 begin
-    PC_plus4  <= std_logic_vector(unsigned(PC) + 4);
+    PC_plus4  <= std_logic_vector(unsigned(PC) + 1);
     NextPC    <= PC_branch when PCSrc = '1' else PC_plus4;
     
     process(clk, reset)

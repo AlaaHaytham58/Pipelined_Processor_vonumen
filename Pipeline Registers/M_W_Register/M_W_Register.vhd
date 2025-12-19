@@ -21,7 +21,9 @@ entity M_W_Register is
         Imm           : in STD_LOGIC_VECTOR(31 downto 0);
         OUT_EN        : in STD_LOGIC;
         CLR           : in STD_LOGIC; 
-
+        WB_Wdata_Sel  : in STD_LOGIC_VECTOR(2 downto 0);
+        WB_Waddr_Sel  : in STD_LOGIC_VECTOR(1 downto 0);
+        
         -- Outputs;
         ALURes_Out    : out STD_LOGIC_VECTOR(31 downto 0);
         Raddr1_Out    : out STD_LOGIC_VECTOR(2 downto 0);
@@ -35,7 +37,9 @@ entity M_W_Register is
         IN_Port_Out   : out STD_LOGIC;
         LD_DATA_Out   : out STD_LOGIC_VECTOR(31 downto 0);
         Imm_Out       : out STD_LOGIC_VECTOR(31 downto 0);
-        OUT_EN_Out    : out STD_LOGIC
+        OUT_EN_Out    : out STD_LOGIC;
+        WB_Wdata_Sel_Out  : out STD_LOGIC_VECTOR(2 downto 0);
+        WB_Waddr_Sel_Out  : out STD_LOGIC_VECTOR(1 downto 0)
     );
 end M_W_Register;
 
@@ -54,7 +58,8 @@ architecture Behavioral of M_W_Register is
         signal LD_DATA_Reg   : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         signal Imm_Reg       : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         signal OUT_EN_Reg    : STD_LOGIC := '0';
-
+        signal WB_Wdata_Sel_Reg: STD_LOGIC_VECTOR(2 downto 0);
+        signal WB_Waddr_Sel_Reg: STD_LOGIC_VECTOR(1 downto 0);
 begin
     -- Register inputs on rising edge
     process (CLK, RST)
@@ -73,6 +78,8 @@ begin
             LD_DATA_Reg   <= (others => '0');
             Imm_Reg       <= (others => '0');
             OUT_EN_Reg    <= '0';
+            WB_Wdata_Sel_Reg <= "000";
+            WB_Waddr_Sel_Reg <= "00";
         elsif rising_edge(CLK) then
             if EN = '1' then
                 ALURes_Reg    <= ALURes;
@@ -88,6 +95,8 @@ begin
                 LD_DATA_Reg   <= LD_DATA;
                 Imm_Reg       <= Imm;
                 OUT_EN_Reg    <= OUT_EN;
+                WB_Wdata_Sel_Reg <= WB_Wdata_Sel;
+                WB_Waddr_Sel_Reg <= WB_Waddr_Sel;
             end if;
         end if;
     end process;
@@ -106,5 +115,6 @@ begin
     LD_DATA_Out   <= LD_DATA_Reg;
     Imm_Out       <= Imm_Reg;
     OUT_EN_Out    <= OUT_EN_Reg;
-
+    WB_Wdata_Sel_Out <=  WB_Wdata_Sel_Reg;
+    WB_Waddr_Sel_Out <=  WB_Waddr_Sel_Reg;
 end Behavioral;

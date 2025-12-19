@@ -15,7 +15,7 @@ entity D_E_Register is
         INT_IDX    : in  STD_LOGIC_VECTOR(1 downto 0);
         MEM_W      : in  STD_LOGIC;
         Branch     : in  STD_LOGIC;
-        WriteData  : in  STD_LOGIC;
+        Mem_Wdata_Sel  : in  STD_LOGIC_VECTOR(1 downto 0);
         MemRead    : in  STD_LOGIC;
         J_Type     : in  STD_LOGIC_VECTOR(1 downto 0);
         Stack_en   : in  STD_LOGIC;
@@ -29,7 +29,9 @@ entity D_E_Register is
         WE2        : in  STD_LOGIC;
         MEM_R      : in  STD_LOGIC;
         PCSRC      : in  STD_LOGIC;
-
+        WB_Wdata_Sel  : in STD_LOGIC_VECTOR(2 downto 0);
+        WB_Waddr_Sel  : in STD_LOGIC_VECTOR(1 downto 0);
+        
         -- Data inputs
         PCPlus4    : in  STD_LOGIC_VECTOR(31 downto 0);
         Rdata1     : in  STD_LOGIC_VECTOR(31 downto 0);
@@ -48,7 +50,7 @@ entity D_E_Register is
         INT_IDX_Out   : out STD_LOGIC_VECTOR(1 downto 0);
         MEM_W_Out     : out STD_LOGIC;
         Branch_Out    : out STD_LOGIC;
-        WriteData_Out : out STD_LOGIC;
+        Mem_Wdata_Sel_Out : out STD_LOGIC_VECTOR(1 downto 0);
         MemRead_Out   : out STD_LOGIC;
         J_Type_Out    : out STD_LOGIC_VECTOR(1 downto 0);
         Stack_en_Out  : out STD_LOGIC;
@@ -71,7 +73,9 @@ entity D_E_Register is
         Rdst_Out      : out STD_LOGIC_VECTOR(2 downto 0);
         Imm_Out       : out STD_LOGIC_VECTOR(31 downto 0);
         IN_Out        : out STD_LOGIC_VECTOR(31 downto 0);
-        ALU_B_Out     : out STD_LOGIC
+        ALU_B_Out     : out STD_LOGIC;
+        WB_Wdata_Sel_Out  : out STD_LOGIC_VECTOR(2 downto 0);
+        WB_Waddr_Sel_Out  : out STD_LOGIC_VECTOR(1 downto 0)
     );
 end D_E_Register;
 architecture D_E_ARCH of D_E_Register is
@@ -82,7 +86,7 @@ architecture D_E_ARCH of D_E_Register is
     signal INT_IDX_Reg    : STD_LOGIC_VECTOR(1 downto 0) := (others => '0');
     signal MEM_W_Reg      : STD_LOGIC := '0';
     signal Branch_Reg     : STD_LOGIC := '0';
-    signal WriteData_Reg  : STD_LOGIC := '0';
+    signal Mem_Wdata_Sel_Reg  : STD_LOGIC_VECTOR(1 downto 0) := "00";
     signal MemRead_Reg    : STD_LOGIC := '0';
     signal J_Type_Reg     : STD_LOGIC_VECTOR(1 downto 0) := (others => '0');
     signal Stack_en_Reg   : STD_LOGIC := '0';
@@ -107,7 +111,8 @@ architecture D_E_ARCH of D_E_Register is
     signal Imm_Reg        : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
     signal IN_Reg         : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
     signal ALU_B_Reg      : STD_LOGIC := '0';
-
+    signal WB_Wdata_Sel_Reg: STD_LOGIC_VECTOR(2 downto 0);
+    signal WB_Waddr_Sel_Reg: STD_LOGIC_VECTOR(1 downto 0);
 begin
 
  
@@ -120,7 +125,7 @@ begin
             INT_IDX_Reg   <= (others => '0');
             MEM_W_Reg     <= '0';
             Branch_Reg    <= '0';
-            WriteData_Reg <= '0';
+            Mem_Wdata_Sel_Reg <= "00";
             MemRead_Reg   <= '0';
             J_Type_Reg    <= (others => '0');
             Stack_en_Reg  <= '0';
@@ -144,7 +149,8 @@ begin
             Imm_Reg     <= (others => '0');
             IN_Reg      <= (others => '0');
             ALU_B_Reg   <= '0';
-
+            WB_Wdata_Sel_Reg <= "000";
+            WB_Waddr_Sel_Reg <= "00";
         elsif rising_edge(CLK) then
             if EN = '1' then
                 CCR_EN_Reg    <= CCR_EN;
@@ -153,7 +159,7 @@ begin
                 INT_IDX_Reg   <= INT_IDX;
                 MEM_W_Reg     <= MEM_W;
                 Branch_Reg    <= Branch;
-                WriteData_Reg <= WriteData;
+                Mem_Wdata_Sel_Reg <= Mem_Wdata_Sel;
                 MemRead_Reg   <= MemRead;
                 J_Type_Reg    <= J_Type;
                 Stack_en_Reg  <= Stack_en;
@@ -178,6 +184,8 @@ begin
                 Imm_Reg     <= Imm;
                 IN_Reg      <= IN_Port;
                 ALU_B_Reg   <= ALU_B;
+                WB_Wdata_Sel_Reg <= WB_Wdata_Sel;
+                WB_Waddr_Sel_Reg <= WB_Waddr_Sel;
             end if;
         end if;
     end process;
@@ -191,7 +199,7 @@ begin
     INT_IDX_Out   <= (others=>'0') when CLR='1' else INT_IDX_Reg;
     MEM_W_Out     <= '0' when CLR='1' else MEM_W_Reg;
     Branch_Out    <= '0' when CLR='1' else Branch_Reg;
-    WriteData_Out <= '0' when CLR='1' else WriteData_Reg;
+    Mem_Wdata_Sel_Out <= "00" when CLR='1' else Mem_Wdata_Sel_Reg;
     MemRead_Out   <= '0' when CLR='1' else MemRead_Reg;
     J_Type_Out    <= (others=>'0') when CLR='1' else J_Type_Reg;
     Stack_en_Out  <= '0' when CLR='1' else Stack_en_Reg;
@@ -215,5 +223,7 @@ begin
     Imm_Out     <= (others=>'0') when CLR='1' else Imm_Reg;
     IN_Out      <= (others=>'0') when CLR='1' else IN_Reg;
     ALU_B_Out   <= '0' when CLR='1' else ALU_B_Reg;
-
+    WB_Wdata_Sel_Out <= "000" when CLR = '1' else WB_Wdata_Sel_Reg;
+    WB_Waddr_Sel_Out <= "000" when CLR = '1' else WB_Waddr_Sel_Reg;
+    
 end D_E_ARCH;

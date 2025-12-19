@@ -25,7 +25,7 @@ begin
         ForwardA <= "00";
         ForwardB <= "00";
         
-        --  forwarding to ALU input A
+         --forwarding to ALU input A
         if EX_MEM_RegWrite = '1' and (EX_MEM_Rdst /= "000") then
             if EX_MEM_Rdst = ID_EX_Rsrc1 then
                 ForwardA <= "01";  

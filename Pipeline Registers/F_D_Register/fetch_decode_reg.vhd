@@ -36,7 +36,11 @@ begin
             IN_Reg      <= (others => '0');
 
         elsif rising_edge(CLK) then
-            if EN = '1' then
+            if (CLR = '1')then 
+                Inst_Reg <= (others => '0');
+                PCPlus4_Out <= (others => '0');
+                IN_Out      <= (others => '0');
+            elsif EN = '1' then
                 Inst_Reg    <= Inst;
                 PCPlus4_Reg <= PCPlus4;
                 IN_Reg      <= IN_Port;
@@ -45,8 +49,8 @@ begin
     end process;
 
     -- Output logic with flush
-    Inst_Out    <= (others => '0') when CLR = '1' else Inst_Reg;
-    PCPlus4_Out <= (others => '0') when CLR = '1' else PCPlus4_Reg;
-    IN_Out      <= (others => '0') when CLR = '1' else IN_Reg;
+    Inst_Out    <= Inst_Reg;
+    PCPlus4_Out <= PCPlus4_Reg;
+    IN_Out      <=  IN_Reg;
 
 end FETCH_DECODE_ARCH;

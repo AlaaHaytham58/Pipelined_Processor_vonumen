@@ -14,7 +14,7 @@ entity STACK is
 end STACK;
 
 architecture ARCH_SP of STACK is
-    constant SP_INITIAL : std_logic_vector(31 downto 0) := x"000FFFFC";  
+    constant SP_INITIAL : std_logic_vector(31 downto 0) := x"000003FC";  
     signal SP_reg  : std_logic_vector(31 downto 0) := SP_INITIAL;
     signal SP_next : std_logic_vector(31 downto 0);
     
