@@ -9,6 +9,7 @@ entity STACK is
         reset       : in  std_logic;
         SP_enable   : in  std_logic;
         SP_INC      : in  std_logic;  
+        SP_DEC      : in  std_logic;
         SP_out      : out std_logic_vector(31 downto 0)  
     );
 end STACK;

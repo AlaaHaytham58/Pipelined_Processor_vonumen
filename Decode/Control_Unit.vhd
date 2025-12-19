@@ -23,7 +23,7 @@ ENTITY Control_Unit IS
 
             --Memory Signals
             Mem_Write_En, Mem_Read_En,Stack_En, PCsrc: OUT std_logic;
-            Stack_Inc: OUT std_logic;                        -- 0: +4, 1: -4
+            Stack_Inc, Stack_Dec: OUT std_logic;             -- 0: +4, 1: -4
             Mem_Op: OUT std_logic;
             Mem_Addr_Sel: OUT STD_LOGIC_VECTOR(1 downto 0);  -- 00: PC 01: ALURes 10: SP  
             Mem_Write_Sel: OUT STD_LOGIC_VECTOR(1 downto 0); -- 00: Rdata1 01: Rdata2 10: PCPlus4
@@ -58,7 +58,7 @@ BEGIN
         CCR_En <= '0';
 
         Mem_Write_En <= '0'; Mem_Read_En <= '0'; Stack_En <= '0'; PCsrc <= '0';
-        Stack_Inc <= '0'; Mem_Op <= '0';
+        Stack_Inc <= '0'; Mem_Op <= '0'; Stack_Dec <= '0';
         Mem_Addr_Sel <= "00";
         Mem_Write_Sel <= "00";
 
@@ -169,7 +169,7 @@ BEGIN
 
                         -- Choose increment or decrement SP
                         Stack_Inc <= not opcode(0);
-
+                        Stack_Dec <=  opcode(0);
                         -- for load and store, ALU operands are rsrc2, Imm
                         ALU_A <= '1';
                         ALU_B <= '1';
@@ -178,7 +178,9 @@ BEGIN
                         ALU_OP <= "001";
 
                         -- to write back LD_Data for pop and ldd
-                        WB_Wdata_Sel <= "110";
+                        WB_Wdata_Sel <= "101";
+
+                        WB_Wadrr_Sel <= "00";
 
                     -- Branch with memory operations
                     when "11" =>
@@ -212,7 +214,7 @@ BEGIN
 
                         -- Choose increment or decrement SP
                         Stack_Inc <= opcode(0);
-
+                        Stack_Dec <= not opcode(0);
                         RTI <= opcode(1) and (not opcode(0));
                     when others =>
                 end case;

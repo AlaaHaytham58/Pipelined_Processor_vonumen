@@ -23,7 +23,8 @@ entity E_M_Register is
         IN_Port       : in STD_LOGIC;
         PCSRC         : in STD_LOGIC;
         Stack_en      : in  STD_LOGIC;
-        Stack_inc     : in  STD_LOGIC; 
+        Stack_inc     : in  STD_LOGIC;
+        Stack_dec     : in  STD_LOGIC; 
         BR_ADDR       : in STD_LOGIC_VECTOR(31 downto 0);
         MEM_W         : in STD_LOGIC;
         Imm           : in STD_LOGIC_VECTOR(31 downto 0);
@@ -46,6 +47,7 @@ entity E_M_Register is
         PCSRC_Out     : out STD_LOGIC;
         Stack_en_Out  : out STD_LOGIC;
         Stack_inc_Out : out STD_LOGIC;
+        Stack_dec_Out     : out  STD_LOGIC; 
         BR_ADDR_Out   : out STD_LOGIC_VECTOR(31 downto 0);
         Rdata1_Out    : out STD_LOGIC_VECTOR(31 downto 0);
         Rdata2_Out    : out STD_LOGIC_VECTOR(31 downto 0);
@@ -75,6 +77,7 @@ architecture Behavioral of E_M_Register is
         signal PCSRC_Reg     : STD_LOGIC := '0';
         signal Stack_en_Reg  : STD_LOGIC := '0';
         signal Stack_inc_Reg : STD_LOGIC := '0';
+        signal Stack_dec_Reg : STD_LOGIC := '0';
         signal BR_ADDR_Reg   : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         signal Rdata1_Reg    : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         signal Rdata2_Reg    : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
@@ -92,7 +95,7 @@ begin
     -- Register inputs on rising edge
     process (CLK, RST)
     begin
-        if RST = '1' then
+        if RST = '1' or (rising_edge(CLK) and CLR = '1')then
             MemRead_Reg   <= '0';
             MEM_OP_Reg    <= '0';
             MEM_SEL_Reg   <= "00";
@@ -105,6 +108,7 @@ begin
             PCSRC_Reg     <= '0';
             Stack_en_Reg  <= '0';
             Stack_inc_Reg <= '0';
+            Stack_dec_Reg <= '0';
             BR_ADDR_Reg   <= (others => '0');
             Rdata1_Reg    <= (others => '0');
             Rdata2_Reg    <= (others => '0');
@@ -131,6 +135,7 @@ begin
                 PCSRC_Reg     <= PCSRC;
                 Stack_en_Reg  <= Stack_en;
                 Stack_inc_Reg <= Stack_inc;
+                Stack_dec_Reg <= Stack_dec;
                 BR_ADDR_Reg   <= BR_ADDR;
                 Rdata1_Reg    <= Rdata1;
                 Rdata2_Reg    <= Rdata2;
@@ -148,29 +153,30 @@ begin
     end process;
 
     -- Combinational outputs (continuous assignments)
-    MemRead_Out   <= '0' when CLR = '1' else MemRead_Reg;
-    MEM_OP_Out    <= '0' when CLR = '1' else MEM_OP_Reg;
-    MEM_SEL_Out   <= "00" when CLR = '1' else MEM_SEL_Reg;
-    MEM_R_Out     <= '0' when CLR = '1' else MEM_R_Reg;
-    ALURes_Out    <= (others => '0') when CLR = '1' else ALURes_Reg;
-    Raddr1_Out    <= (others => '0') when CLR = '1' else Raddr1_Reg;
-    Raddr2_Out    <= (others => '0') when CLR = '1' else Raddr2_Reg;
-    Rdst_Out      <= (others => '0') when CLR = '1' else Rdst_Reg;
-    PCPlus4_Out   <= (others => '0') when CLR = '1' else PCPlus4_Reg;
-    PCSRC_Out     <= '0' when CLR = '1' else PCSRC_Reg;
-    Stack_en_Out  <= '0' when CLR='1' else Stack_en_Reg;
-    Stack_inc_Out  <= '0' when CLR='1' else Stack_inc_Reg;
-    BR_ADDR_Out   <= (others => '0') when CLR = '1' else BR_ADDR_Reg;
-    Rdata1_Out    <= (others => '0') when CLR = '1' else Rdata1_Reg;
-    Rdata2_Out    <= (others => '0') when CLR = '1' else Rdata2_Reg;
-    Mem_Wdata_Sel_Out <= "00" when CLR = '1' else Mem_Wdata_Sel_Reg;
-    WE1_Out       <= '0' when CLR = '1' else WE1_Reg;
-    WE2_Out       <= '0' when CLR = '1' else WE2_Reg;
-    MEM_W_Out     <= '0' when CLR = '1' else MEM_W_Reg;
-    IN_Port_Out   <= '0' when CLR = '1' else IN_Port_Reg;
-    Imm_Out       <= (others => '0') when CLR = '1' else Imm_Reg;
-    OUT_EN_Out    <= '0' when CLR = '1' else OUT_EN_Reg;
-    WB_Wdata_Sel_Out <= "000" when CLR = '1' else WB_Wdata_Sel_Reg;
-    WB_Waddr_Sel_Out <= "00" when CLR = '1' else WB_Waddr_Sel_Reg;
+    MemRead_Out   <=  MemRead_Reg;
+    MEM_OP_Out    <=  MEM_OP_Reg;
+    MEM_SEL_Out   <=  MEM_SEL_Reg;
+    MEM_R_Out     <=  MEM_R_Reg;
+    ALURes_Out    <=  ALURes_Reg;
+    Raddr1_Out    <=  Raddr1_Reg;
+    Raddr2_Out    <=  Raddr2_Reg;
+    Rdst_Out      <=  Rdst_Reg;
+    PCPlus4_Out   <=  PCPlus4_Reg;
+    PCSRC_Out     <=  PCSRC_Reg;
+    Stack_en_Out  <=  Stack_en_Reg;
+    Stack_inc_Out  <=  Stack_inc_Reg;
+    Stack_dec_Out  <=  Stack_dec_Reg;
+    BR_ADDR_Out   <=  BR_ADDR_Reg;
+    Rdata1_Out    <=  Rdata1_Reg;
+    Rdata2_Out    <=  Rdata2_Reg;
+    Mem_Wdata_Sel_Out <=  Mem_Wdata_Sel_Reg;
+    WE1_Out       <=  WE1_Reg;
+    WE2_Out       <=  WE2_Reg;
+    MEM_W_Out     <=  MEM_W_Reg;
+    IN_Port_Out   <=  IN_Port_Reg;
+    Imm_Out       <=  Imm_Reg;
+    OUT_EN_Out    <=  OUT_EN_Reg;
+    WB_Wdata_Sel_Out <=  WB_Wdata_Sel_Reg;
+    WB_Waddr_Sel_Out <=  WB_Waddr_Sel_Reg;
 
 end Behavioral;
