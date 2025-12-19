@@ -93,7 +93,7 @@ ARCHITECTURE processor_arch OF processor IS
     signal ID_EX_Mem_Wdata_Sel : STD_LOGIC_VECTOR(1 downto 0);
     -- EX Stage Signals
     signal ALU_op1, ALU_op2, ALU_result : std_logic_vector(31 downto 0);
-    signal CCR_updated, CCR_reserved : std_logic_vector(2 downto 0);
+    signal CCR_updated, CCR_reserved_sig : std_logic_vector(2 downto 0);
     signal EX_CCR_En : std_logic;
     signal EX_RTI, Flags_saved: std_logic;
     signal branch_taken, jump_target_sel : std_logic;
@@ -415,7 +415,7 @@ BEGIN
             when '0' =>
                 CCR_in <= CCR_updated;
             when '1' =>
-                CCR_in <= CCR_reserved;
+                CCR_in <= CCR_reserved_sig;
         end case;
 
     end process;
@@ -431,14 +431,14 @@ BEGIN
         );
 
     CCR_Reserved: entity work.CCR_Reserved
-        port (
+        Port Map(
             clk => clk,
             reset => reset,
 
             Int_Jump_Sel => Int_Jump_Sel,
 
             ccr_in => CCR_out_sig,
-            ccr_reserved => CCR_reserved,
+            ccr_reserved => CCR_reserved_sig,
 
             flags_saved => Flags_saved
         );
@@ -547,7 +547,6 @@ STACK_inst: entity work.STACK
         clk => clk,
         reset => reset,
         SP_enable => EX_MEM_Stack_En,
-        SP_INC => EX_MEM_Stack_Inc,
         SP_INC => EX_MEM_Stack_Inc,
         SP_DEC => EX_MEM_Stack_Dec,
         SP_out => SP_value
