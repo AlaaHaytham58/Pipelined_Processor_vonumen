@@ -87,6 +87,8 @@ ARCHITECTURE processor_arch OF processor IS
     signal ID_EX_IN_PORT : std_logic_vector(31 downto 0);
     signal ID_EX_Wdata_Sel: STD_LOGIC_VECTOR(2 downto 0);
     signal ID_EX_Waddr_Sel: STD_LOGIC_VECTOR(1 downto 0);
+
+    
     signal ID_EX_Mem_Addr_Sel : STD_LOGIC_VECTOR(1 downto 0);
     signal ID_EX_Mem_Wdata_Sel : STD_LOGIC_VECTOR(1 downto 0);
     -- EX Stage Signals
@@ -308,6 +310,8 @@ BEGIN
             ALU_B => ALU_B,
             WB_Wdata_Sel => WB_Wdata_Sel,
             WB_Waddr_Sel => WB_Wadrr_Sel,
+            Stack_en => Stack_En,
+            Stack_inc => Stack_Inc,
             CCR_EN_Out => ID_EX_CCR_En,
             RTI_Out => ID_EX_RTI,
             INT_Jump_Out => ID_EX_Int_Jump,
@@ -317,8 +321,6 @@ BEGIN
             Mem_Wdata_Sel_Out => ID_EX_Mem_Wdata_Sel,
             MemRead_Out => ID_EX_Mem_Read_En,
             J_Type_Out => ID_EX_J_Type,
-            Stack_en => ID_EX_Stack_En,
-            Stack_inc => Stack_Inc,
             MEM_OP_Out => ID_EX_Mem_Op,
             MEM_SEL_Out => ID_EX_Mem_Addr_Sel,
             OUT_EN_Out => ID_EX_OUT_En,
@@ -493,7 +495,7 @@ BEGIN
     -- ====== MEMORY ======
     
     -- Stack Pointer
-    SP_enable <= EX_MEM_Stack_En;
+   -- SP_enable <= EX_MEM_Stack_En;
 
 STACK_inst: entity work.STACK
     Port Map(

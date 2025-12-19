@@ -165,7 +165,7 @@ BEGIN
                         Mem_Read_En <= not opcode(0);
 
                         -- Enable SP for push pop
-                        Stack_En <= opcode(1);
+                        Stack_En <= not opcode(1);
 
                         -- Choose increment or decrement SP
                         Stack_Inc <= not opcode(0);
@@ -178,7 +178,7 @@ BEGIN
                         ALU_OP <= "001";
 
                         -- to write back LD_Data for pop and ldd
-                        WB_Wdata_Sel <= "101";
+                        WB_Wdata_Sel <= "110";
 
                     -- Branch with memory operations
                     when "11" =>

@@ -150,7 +150,7 @@ begin
     -- Combinational outputs (continuous assignments)
     MemRead_Out   <= '0' when CLR = '1' else MemRead_Reg;
     MEM_OP_Out    <= '0' when CLR = '1' else MEM_OP_Reg;
-    MEM_SEL_Out   <= "000" when CLR = '1' else MEM_SEL_Reg;
+    MEM_SEL_Out   <= "00" when CLR = '1' else MEM_SEL_Reg;
     MEM_R_Out     <= '0' when CLR = '1' else MEM_R_Reg;
     ALURes_Out    <= (others => '0') when CLR = '1' else ALURes_Reg;
     Raddr1_Out    <= (others => '0') when CLR = '1' else Raddr1_Reg;
@@ -171,6 +171,6 @@ begin
     Imm_Out       <= (others => '0') when CLR = '1' else Imm_Reg;
     OUT_EN_Out    <= '0' when CLR = '1' else OUT_EN_Reg;
     WB_Wdata_Sel_Out <= "000" when CLR = '1' else WB_Wdata_Sel_Reg;
-    WB_Waddr_Sel_Out <= "000" when CLR = '1' else WB_Waddr_Sel_Reg;
+    WB_Waddr_Sel_Out <= "00" when CLR = '1' else WB_Waddr_Sel_Reg;
 
 end Behavioral;

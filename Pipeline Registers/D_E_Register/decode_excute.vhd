@@ -224,6 +224,6 @@ begin
     IN_Out      <= (others=>'0') when CLR='1' else IN_Reg;
     ALU_B_Out   <= '0' when CLR='1' else ALU_B_Reg;
     WB_Wdata_Sel_Out <= "000" when CLR = '1' else WB_Wdata_Sel_Reg;
-    WB_Waddr_Sel_Out <= "000" when CLR = '1' else WB_Waddr_Sel_Reg;
+    WB_Waddr_Sel_Out <= "00" when CLR = '1' else WB_Waddr_Sel_Reg;
     
 end D_E_ARCH;
