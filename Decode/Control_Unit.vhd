@@ -132,6 +132,7 @@ BEGIN
                             -- To write back data for Swap
                             if (opcode(2 downto 0) = "101") then 
                                 WE2 <= '1';
+                                WB_Wdata_Sel <= "010";
                             else
                                 WE2 <= '0';
                             end if;

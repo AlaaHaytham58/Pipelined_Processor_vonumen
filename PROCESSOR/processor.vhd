@@ -127,7 +127,7 @@ ARCHITECTURE processor_arch OF processor IS
 
     -- MEM/WB Pipeline Register Signals
     signal MEM_WB_WE1, MEM_WB_WE2, MEM_WB_OUT_En : std_logic;
-    signal MEM_WB_ALU_result, MEM_WB_Mem_Data, MEM_WB_Rdata1 : std_logic_vector(31 downto 0);
+    signal MEM_WB_ALU_result, MEM_WB_Mem_Data, MEM_WB_Rdata1,MEM_WB_Rdata2 : std_logic_vector(31 downto 0);
     signal MEM_WB_Rdst,MEM_WB_Rsrc1,MEM_WB_Rsrc2 : std_logic_vector(2 downto 0);
     signal MEM_WB_imm : std_logic_vector(31 downto 0);
     signal MEM_WB_IN_PORT : std_logic_vector(31 downto 0);
@@ -383,10 +383,10 @@ BEGIN
         end case;
 
         -- ALU Operand B (rsrc2 or immediate)
-        if ID_EX_ALU_B = '1' then
-            -- Use immediate
-            ALU_op2 <= std_logic_vector(resize(signed(ID_EX_imm), 32));
-        else
+        -- if ID_EX_ALU_B = '1' then
+        --     -- Use immediate
+        --     ALU_op2 <= std_logic_vector(resize(signed(ID_EX_imm), 32));
+        -- else
             -- Use Rsrc2
             case ForwardB is
                 when "00" => ALU_op2 <= ID_EX_Rdata2;
@@ -394,9 +394,9 @@ BEGIN
                 when "10" => ALU_op2 <= MEM_WB_ALU_result;
                 when others => ALU_op2 <= ID_EX_Rdata2;
             end case;
-        end if;
+       -- end if;
     end process;
-    ALU_A_MUX <= ALU_op1 when ID_EX_ALU_A = '0' else ID_EX_Rdata2;
+    ALU_A_MUX <= ALU_op1 when ID_EX_ALU_A = '0' else ALU_op2;
     ALU_B_MUX <= ALU_op2 when ID_EX_ALU_B = '0' else ID_EX_imm;
 
     -- ALU
@@ -585,7 +585,7 @@ STACK_inst: entity work.STACK
             Rdst_Out => MEM_WB_Rdst,
             RT_ADDR_Out => open,
             Rdata1_Out => MEM_WB_Rdata1,
-            Rdata2_Out => open,
+            Rdata2_Out => MEM_WB_Rdata2,
             WE1_Out => MEM_WB_WE1,
             WE2_Out => MEM_WB_WE2,
             IN_Port_Out => open,
@@ -603,14 +603,14 @@ STACK_inst: entity work.STACK
     -- 000: ALURes, 001: Rdata1, 010: Rdata2, 011: IMM, 100: ALURes, 101: LD_Data, 110: IN, 111: N/A
     -- Write Back Data Mux
     process(MEM_WB_Wdata_Sel, MEM_WB_ALU_result, MEM_WB_Rdata1, MEM_WB_Mem_Data,
-            MEM_WB_imm, IN_PORT, MEM_WB_IN_PORT)
+            MEM_WB_imm, IN_PORT)
     begin
         case MEM_WB_Wdata_Sel is
             when "000" =>   Reg_Wdata1 <= MEM_WB_ALU_result;
             when "001" =>   Reg_Wdata1 <= MEM_WB_Rdata1;
-            when "010" =>   Reg_Wdata1 <= (others => '0');
+            when "010" =>   Reg_Wdata1 <= MEM_WB_Rdata2;
             when "011" =>   Reg_Wdata1 <= MEM_WB_imm;
-            when "100" =>   Reg_Wdata1 <= MEM_WB_ALU_result;
+            when "100" =>   Reg_Wdata1 <= MEM_WB_Rdata2;
             when "101" =>   Reg_Wdata1 <= MEM_WB_Mem_Data;
             when "110" =>   Reg_Wdata1 <= IN_PORT;
             when others =>  Reg_Wdata1 <= MEM_WB_ALU_result;
@@ -631,8 +631,8 @@ STACK_inst: entity work.STACK
     -- Write Enable signals
     Reg_WE1 <= MEM_WB_WE1;
     Reg_WE2 <= MEM_WB_WE2;
-    Reg_Waddr2 <= (others => '0');
-    Reg_Wdata2 <= (others => '0');
+    Reg_Waddr2 <= MEM_WB_Rsrc2;
+    Reg_Wdata2 <= MEM_WB_Rdata1;
 
     -- Output Port
     process(clk, reset)

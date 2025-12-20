@@ -29,7 +29,7 @@ architecture ARCH_Memory of Memory is
 		FILE MEMORY_FILE: TEXT;
     BEGIN
         -- OPEN FILE
-        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/branch.mem",  READ_MODE);
+        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/two_opreand.mem",  READ_MODE);
 
         -- READ FIRST 32 BITS OF STARTING ADDRESS
         READLINE(MEMORY_FILE, TEXT_LINE);
@@ -51,13 +51,7 @@ architecture ARCH_Memory of Memory is
 		FILE MEMORY_FILE: TEXT;
     BEGIN
        -- OPEN FILE
-        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/branch.mem",  READ_MODE);
-
-        -- READ FIRST 32 BITS OF STARTING ADDRESS
-        READLINE(MEMORY_FILE, TEXT_LINE);
-        READ(TEXT_LINE, BINARY_TEXT_LINE);
-	    -- REPORT "TEXT_LINE: "& INTEGER'IMAGE(TO_INTEGER(UNSIGNED(TO_STDLOGICVECTOR(BINARY_TEXT_LINE))));
-        --STARTING_ADDRESS(31 DOWNTO 0) := TO_STDLOGICVECTOR(BINARY_TEXT_LINE);
+        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/two_opreand.mem",  READ_MODE);
 
         COUNT := 0;
 
@@ -79,7 +73,7 @@ begin
     -- read for data memory
     Read_data <= mem(to_integer(unsigned(Mem_Addr)));
 
-    RST_Addr <= start_addr;
+    RST_Addr <= mem(0);
 
     --mem(0) when reset = '1' else
     -- write

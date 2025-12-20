@@ -23,7 +23,7 @@ BEGIN
     begin
         if (rst = '1') then
             registers <= (others => (others => '0'));
-        elsif rising_edge(clk) then
+        elsif falling_edge(clk) then
             if (WE1 = '1') then
                 registers(to_integer(unsigned(Waddr1))) <= Wdata1;
             end if;
