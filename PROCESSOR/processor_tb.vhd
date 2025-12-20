@@ -30,9 +30,9 @@ ARCHITECTURE testbench OF processor_tb IS
     signal wr_en: std_logic := '1';
     -- Clock period
     constant CLK_PERIOD : time := 10 ns;
-    
+
 BEGIN
-    
+
     -- Instantiate the processor
     UUT: entity work.processor
         PORT MAP(
@@ -46,7 +46,7 @@ BEGIN
             ALU_result_debug => ALU_result_debug,
             CCR_debug => CCR_debug
         );
-    
+
     -- Clock generation
     clk_process: process
     begin
@@ -55,7 +55,7 @@ BEGIN
         clk <= '1';
         wait for CLK_PERIOD/2;
     end process;
-    
+
 
     -- Test stimulus
     stim_process: process
@@ -64,29 +64,29 @@ BEGIN
         reset <= '1';
         IN_PORT <= x"000FFFFF";  -- Test input for IN R0
         wait for CLK_PERIOD * 2;
-        
+
         -- Release reset
         reset <= '0';
         wait for CLK_PERIOD;
-        
+
         -- Run the program
         for i in 1 to 50 loop  -- Run for 50 clock cycles
             wait for CLK_PERIOD;
-            
+
             -- Monitor progress
             if PC_debug = x"0000000C" then  -- End of program
                 report "Program completed at PC = 0x0C";
                 exit;
             end if;
         end loop;
-        
+
         -- Check final results
         report "Test completed";
         -- report "Final PC: " & to_hstring(PC_debug);
         -- report "Final OUT_PORT: " & to_hstring(OUT_PORT);
-        -- report "Final CCR: " & to_string(CCR_debug);
-        
+        --report "Final CCR: " & to_string(CCR_debug);
+
         wait;
     end process;
-    
+
 END testbench;

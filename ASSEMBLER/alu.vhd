@@ -67,15 +67,15 @@ architecture Behavioral of ALU is
                     update_flags <= "011";
 
                 when "110" => --INC
-                    signed_result <= std_logic_vector(A + 1);     --32-bits
-                    unsigned_result <= signed_result(31 downto 0);
-                    cf <= signed_result(32);
-                    if signed_result(31 downto 0) = x"00000000" then
+                    tmp := A + 1;
+                    unsigned_result <= std_logic_vector(tmp(31 downto 0));
+                    cf <= tmp(32);
+                    if tmp(31 downto 0) = x"00000000" then
                         zf <= '1';
                     else
                         zf <= '0';
                     end if;
-                    nf <= signed_result(31);
+                    nf <= tmp(31);
                     update_flags <= "111";
 
                 when "001" => --Add
@@ -87,7 +87,7 @@ architecture Behavioral of ALU is
                     else
                         zf <= '0';
                     end if;
-                    nf <= signed_result(31);
+                    nf <= tmp(31);
                     update_flags <= "111";
 
                 when "010" => --Sub
@@ -119,12 +119,12 @@ architecture Behavioral of ALU is
                     tmp := A + B;
                     unsigned_result <= std_logic_vector(tmp(31 downto 0));
                     cf <= tmp(32);
-                    if signed_result(31 downto 0) = x"00000000" then
+                    if tmp(31 downto 0) = x"00000000" then
                         zf <= '1';
                     else
                         zf <= '0';
                     end if;
-                    nf <= signed_result(31);
+                    nf <= tmp(31);
                     update_flags <= "111";
 
                 when others =>

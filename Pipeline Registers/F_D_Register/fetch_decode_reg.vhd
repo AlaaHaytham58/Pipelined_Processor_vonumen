@@ -35,10 +35,10 @@ begin
             PCPlus4_Reg <= (others => '0');
             IN_Reg      <= (others => '0');
         elsif rising_edge(CLK) then
-            if (CLR = '1')then 
+            if (CLR = '1')then
                 Inst_Reg    <= (others => '0');
                 PCPlus4_Reg <= (others => '0');
-                IN_Out      <= (others => '0');
+                IN_Reg      <= (others => '0');
             elsif EN = '1' then
                 Inst_Reg    <= Inst;
                 PCPlus4_Reg <= PCPlus4;

@@ -37,5 +37,5 @@ begin
         end if;
     end process;
 
-    ccr_out <= ccr_reg;
+    CCR_OUT <= ccr_reg;
 end architecture;

@@ -8,17 +8,17 @@ entity Memory is
     port (
         clk        : in std_logic;
         reset    : in std_logic;
-        -- Data memory 
+        -- Data memory
         Mem_write  : in std_logic;
-        Mem_Read   : in std_logic; 
-        Mem_Addr   : in std_logic_vector(31 downto 0);   
+        Mem_Read   : in std_logic;
+        Mem_Addr   : in std_logic_vector(31 downto 0);
         Write_data : in std_logic_vector(31 downto 0);
         Read_data  : out std_logic_vector(31 downto 0)
     );
 end entity;
 
 architecture ARCH_Memory of Memory is
-    constant MEM_SIZE : integer := 2**10;  
+    constant MEM_SIZE : integer := 2**10;
     type memory_array is array (0 to MEM_SIZE - 1) of std_logic_vector(31 downto 0);
 
     IMPURE FUNCTION GET_START_ADDR RETURN std_logic_vector IS
@@ -26,9 +26,9 @@ architecture ARCH_Memory of Memory is
         VARIABLE STARTING_ADDRESS: std_logic_vector(31 downto 0);
         VARIABLE BINARY_TEXT_LINE : BIT_VECTOR(31 DOWNTO 0);
 		FILE MEMORY_FILE: TEXT;
-    BEGIN 
+    BEGIN
         -- OPEN FILE
-        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/Memory.mem",  READ_MODE);
+        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/one_operand.mem",  READ_MODE);
 
         -- READ FIRST 32 BITS OF STARTING ADDRESS
         READLINE(MEMORY_FILE, TEXT_LINE);
@@ -56,10 +56,10 @@ architecture ARCH_Memory of Memory is
         READLINE(MEMORY_FILE, TEXT_LINE);
         READ(TEXT_LINE, BINARY_TEXT_LINE);
 	    -- REPORT "TEXT_LINE: "& INTEGER'IMAGE(TO_INTEGER(UNSIGNED(TO_STDLOGICVECTOR(BINARY_TEXT_LINE))));
-        STARTING_ADDRESS(31 DOWNTO 0) := TO_STDLOGICVECTOR(BINARY_TEXT_LINE); 
+        STARTING_ADDRESS(31 DOWNTO 0) := TO_STDLOGICVECTOR(BINARY_TEXT_LINE);
 
         COUNT := TO_INTEGER(UNSIGNED(STARTING_ADDRESS));
-        
+
         WHILE NOT ENDFILE(MEMORY_FILE) LOOP
             READLINE(MEMORY_FILE, TEXT_LINE);
             READ(TEXT_LINE, BINARY_TEXT_LINE);
@@ -72,10 +72,10 @@ architecture ARCH_Memory of Memory is
         RETURN MEMORY_CONTENT;
 
     END FUNCTION FILL_MEMORY;
-    
+
     signal mem : memory_array := FILL_MEMORY;
 begin
-    -- read for data memory 
+    -- read for data memory
     Read_data <= mem(to_integer(unsigned(Mem_Addr)));
     --mem(0) when reset = '1' else
     -- write
