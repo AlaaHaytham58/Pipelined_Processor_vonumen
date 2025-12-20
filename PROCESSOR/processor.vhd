@@ -95,6 +95,8 @@ ARCHITECTURE processor_arch OF processor IS
     signal ALU_op1, ALU_op2, ALU_result : std_logic_vector(31 downto 0);
     signal CCR_updated, CCR_reserved_sig, CCR_OUT : std_logic_vector(2 downto 0);
     signal EX_CCR_En : std_logic;
+    signal ALU_A_MUX : std_logic_vector(31 downto 0);
+    signal ALU_B_MUX : std_logic_vector(31 downto 0);
     signal EX_RTI, Flags_saved: std_logic;
     signal branch_taken, jump_target_sel : std_logic;
     signal jump_target : std_logic_vector(31 downto 0);
@@ -392,13 +394,15 @@ BEGIN
             end case;
         end if;
     end process;
+    ALU_A_MUX <= ALU_op1 when ID_EX_ALU_A = '0' else ID_EX_Rdata2;
+    ALU_B_MUX <= ALU_op2 when ID_EX_ALU_B = '0' else ID_EX_imm;
 
     -- ALU
     ALU_inst: entity work.ALU
         Port Map
         (
-            op1 => ALU_op1,
-            op2 => ALU_op2,
+            op1 => ALU_A_MUX,
+            op2 => ALU_B_MUX,
             alu_op => ID_EX_ALU_Op, 
            
             alu_out => ALU_result,
@@ -417,7 +421,7 @@ BEGIN
         (
             clk             => clk,
             reset           => reset,
-            ccr_en          => ccr_en,
+            ccr_en          => CCR_en,
             int_j           => ID_EX_Int_Jump,
             RTI             => ID_EX_RTI,
             alu_ccr         => CCR_OUT,
