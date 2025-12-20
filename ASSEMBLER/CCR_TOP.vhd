@@ -11,7 +11,7 @@ entity CCR_Top is
         alu_ccr      : in  std_logic_vector(2 downto 0);
 
         ccr_out      : out std_logic_vector(2 downto 0);
-        ccr_reserved : out std_logic_vector(2 downto 0); -- 👈 expose
+        ccr_reserved : out std_logic_vector(2 downto 0); --  expose
         flags_saved  : out std_logic
     );
 end entity;

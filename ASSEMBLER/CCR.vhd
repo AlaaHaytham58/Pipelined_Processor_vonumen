@@ -6,9 +6,9 @@ entity CCR_Reg is
     port (
         clk       : in  std_logic;
         reset     : in  std_logic;
-        write_en  : in  std_logic;
-        ccr_next  : in  std_logic_vector(2 downto 0);
-        ccr_out   : out std_logic_vector(2 downto 0)
+        CCR_En  : in  std_logic;
+        CCR_IN  : in  std_logic_vector(2 downto 0);
+        CCR_OUT   : out std_logic_vector(2 downto 0)
     );
 end entity;
 
@@ -20,11 +20,11 @@ begin
         if reset = '1' then
             ccr_reg <= (others => '0');
         elsif rising_edge(clk) then
-            if write_en = '1' then
-                ccr_reg <= ccr_next;     -- from ALU or RTI mux maybe
+            if CCR_En = '1' then
+                ccr_reg <= CCR_IN;     -- from ALU or RTI mux
             end if;
         end if;
     end process;
 
-    ccr_out <= ccr_reg;
+    CCR_OUT <= ccr_reg;
 end architecture;
