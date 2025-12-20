@@ -9,7 +9,7 @@ entity CCR_Reserved is
         reset         : in  std_logic;
 
         -- Control signals
-        --save_ccr      : in  std_logic;  -- Save CCR on interrupt
+        save_ccr      : in  std_logic;  -- Save CCR on interrupt
         Int_Jump_Sel           : in  std_logic;  -- ENABLE signal for interrupt jump
 
         -- Data signals
