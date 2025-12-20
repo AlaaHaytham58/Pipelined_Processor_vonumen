@@ -28,7 +28,7 @@ ARCHITECTURE processor_arch OF processor IS
     constant INTR_VECTOR  : std_logic_vector(31 downto 0) := x"00000004";
 
     -- IF Stage Signals
-    signal PC_value, PC_plus_4, next_PC : std_logic_vector(31 downto 0);
+    signal PC_value, PC_plus_4, next_PC, PC_Start_Addr : std_logic_vector(31 downto 0);
     signal instruction, PC_branch_addr : std_logic_vector(31 downto 0);
     signal PC_stall, PC_write_enable : std_logic;
 
@@ -147,7 +147,7 @@ BEGIN
             reset => reset,
             stall => PC_stall,
             PCSrc => PCsrc,
-            M0 => RESET_VECTOR,
+            M0 => PC_Start_Addr,
             PC_out => PC_value,
             PC_branch => EX_MEM_BR_ADDR
         );
@@ -161,6 +161,7 @@ BEGIN
             reset=>  reset,
             Mem_write => EX_MEM_Mem_Write_En,
             Mem_Read => EX_MEM_Mem_Read_En,
+            RST_Addr => PC_Start_Addr,
             Mem_Addr => Mem_Addr,
             Write_data => Mem_Write_Data,
             Read_data => Mem_Read_Data

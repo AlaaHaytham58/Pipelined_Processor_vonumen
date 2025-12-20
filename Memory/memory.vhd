@@ -11,6 +11,7 @@ entity Memory is
         -- Data memory
         Mem_write  : in std_logic;
         Mem_Read   : in std_logic;
+        RST_Addr   : out std_logic_vector(31 downto 0);
         Mem_Addr   : in std_logic_vector(31 downto 0);
         Write_data : in std_logic_vector(31 downto 0);
         Read_data  : out std_logic_vector(31 downto 0)
@@ -28,7 +29,7 @@ architecture ARCH_Memory of Memory is
 		FILE MEMORY_FILE: TEXT;
     BEGIN
         -- OPEN FILE
-        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/one_operand.mem",  READ_MODE);
+        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/two_opreand.mem",  READ_MODE);
 
         -- READ FIRST 32 BITS OF STARTING ADDRESS
         READLINE(MEMORY_FILE, TEXT_LINE);
@@ -50,15 +51,15 @@ architecture ARCH_Memory of Memory is
 		FILE MEMORY_FILE: TEXT;
     BEGIN
        -- OPEN FILE
-        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/one_operand.mem",  READ_MODE);
+        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/two_opreand.mem",  READ_MODE);
 
         -- READ FIRST 32 BITS OF STARTING ADDRESS
         READLINE(MEMORY_FILE, TEXT_LINE);
         READ(TEXT_LINE, BINARY_TEXT_LINE);
 	    -- REPORT "TEXT_LINE: "& INTEGER'IMAGE(TO_INTEGER(UNSIGNED(TO_STDLOGICVECTOR(BINARY_TEXT_LINE))));
-        STARTING_ADDRESS(31 DOWNTO 0) := TO_STDLOGICVECTOR(BINARY_TEXT_LINE);
+        --STARTING_ADDRESS(31 DOWNTO 0) := TO_STDLOGICVECTOR(BINARY_TEXT_LINE);
 
-        COUNT := TO_INTEGER(UNSIGNED(STARTING_ADDRESS));
+        COUNT := 0;
 
         WHILE NOT ENDFILE(MEMORY_FILE) LOOP
             READLINE(MEMORY_FILE, TEXT_LINE);
@@ -72,11 +73,14 @@ architecture ARCH_Memory of Memory is
         RETURN MEMORY_CONTENT;
 
     END FUNCTION FILL_MEMORY;
-
+    signal start_addr : std_logic_vector(31 downto 0) := GET_START_ADDR;
     signal mem : memory_array := FILL_MEMORY;
 begin
     -- read for data memory
     Read_data <= mem(to_integer(unsigned(Mem_Addr)));
+
+    RST_Addr <= start_addr;
+
     --mem(0) when reset = '1' else
     -- write
     process(clk, reset)
