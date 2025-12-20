@@ -89,7 +89,7 @@ class Assembler:
 
             # Instruction field mapping
             if op == 'IN':
-                rsrc1 = self.reg(parts[0]) # Switched logic: IN uses rsrc1
+                rdst = self.reg(parts[0]) # Switched logic: IN uses rsrc1
             elif op == 'OUT':
                 rdst = self.reg(parts[0]) # Switched logic: OUT uses rdst
             elif op == 'IADD':
@@ -108,7 +108,7 @@ class Assembler:
             elif op in ['MOV', 'SWAP']:
                 rsrc1 = self.reg(parts[0])
                 rsrc2 = self.reg(parts[1])
-            elif op in ['JZ', 'JN', 'JC', 'JMP', 'CALL']:
+            elif op in ['JZ', 'JN', 'JC', 'JMP', 'CALL','INT']:
                 if parts and parts[0].upper().startswith('R'):
                     rsrc1 = self.reg(parts[0])
                 elif parts:

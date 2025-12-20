@@ -106,7 +106,7 @@ BEGIN
                         else
                         -- Rtype operations
 
-                            if (opcode(2 downto 0) = "001") then
+                            if (opcode(4 downto 0) = "00001") then
                                 HLT <= '1';
                             else 
                                 HLT <= '0';
