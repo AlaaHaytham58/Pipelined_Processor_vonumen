@@ -304,7 +304,7 @@ BEGIN
             PCPlus4 => IF_ID_PCPlus4,
             Rdata1 => Reg_Rdata1,
             Rdata2 => Reg_Rdata2,
-            Raddr1 => Rsrc1,
+            Raddr1 => Raddr1_selected,
             Raddr2 => Rsrc2,
             Rdst => Rdst,
             Imm => imm_extended,
@@ -399,7 +399,7 @@ BEGIN
             op2 => ALU_op2,
             alu_op => ID_EX_ALU_Op,
             alu_out => ALU_result,
-            ccr_in => "000",
+            ccr_in => CCR_out_sig,
             ccr_out => CCR_updated
         );
 
@@ -416,6 +416,7 @@ BEGIN
                 CCR_in <= CCR_updated;
             when '1' =>
                 CCR_in <= CCR_reserved_sig;
+            when others => CCR_in <= CCR_updated;
         end case;
 
     end process;

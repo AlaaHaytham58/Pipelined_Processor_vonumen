@@ -3,7 +3,7 @@ USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 
 ENTITY Register_file IS
-    PORT(    
+    PORT(
         clk, rst, WE1, WE2 : IN std_logic;
         Raddr1, Raddr2: IN std_logic_vector(2 downto 0);
         Waddr1, Waddr2: IN std_logic_vector(2 downto 0);
@@ -23,12 +23,12 @@ BEGIN
     begin
         if (rst = '1') then
             registers <= (others => (others => '0'));
-        elsif falling_edge(clk) then
-            if (WE1 = '1') then 
+        elsif rising_edge(clk) then
+            if (WE1 = '1') then
                 registers(to_integer(unsigned(Waddr1))) <= Wdata1;
             end if;
-            
-            if (WE2 = '1') then 
+
+            if (WE2 = '1') then
                 registers(to_integer(unsigned(Waddr2))) <= Wdata2;
             end if;
         end if;
