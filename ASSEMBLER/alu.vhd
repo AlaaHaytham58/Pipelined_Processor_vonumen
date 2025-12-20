@@ -137,3 +137,4 @@ architecture Behavioral of ALU is
         ccr_update <= update_flags;
         ccr_out    <= cf & nf & zf;
 end architecture;
+

@@ -93,7 +93,7 @@ ARCHITECTURE processor_arch OF processor IS
     signal ID_EX_Mem_Wdata_Sel : STD_LOGIC_VECTOR(1 downto 0);
     -- EX Stage Signals
     signal ALU_op1, ALU_op2, ALU_result : std_logic_vector(31 downto 0);
-    signal CCR_updated, CCR_reserved_sig : std_logic_vector(2 downto 0);
+    signal CCR_updated, CCR_reserved_sig, CCR_OUT : std_logic_vector(2 downto 0);
     signal EX_CCR_En : std_logic;
     signal EX_RTI, Flags_saved: std_logic;
     signal branch_taken, jump_target_sel : std_logic;
@@ -147,7 +147,7 @@ BEGIN
             reset => reset,
             stall => PC_stall,
             PCSrc => PCsrc,
-            M0 => Mem_Read_Data,
+            M0 => RESET_VECTOR,
             PC_out => PC_value,
             PC_branch => EX_MEM_BR_ADDR
         );
@@ -227,7 +227,8 @@ BEGIN
 
     -- 1. Mux for Raddr1 selection (Raddr_Sel)
     -- 0: Read from Rsrc1, 1: Read from Rdst
-    Raddr1_selected <= Rdst when opcode(2) = '1' or opcode(2 downto 0) = "011"  else Rsrc1;
+    -- not, inc, out, in , push ,pop, ldm
+    Raddr1_selected <= Rdst when opcode = "0011100" or opcode = "0011110" or opcode = "0001110" or opcode = "0001010" or  opcode = "0001001" or opcode = "1000101" or opcode = "1001100" else Rsrc1;
 
     -- 2. Register File with correct connections
     Register_file_inst: entity work.Register_file
@@ -407,48 +408,8 @@ BEGIN
         
     ALU_result_debug <= ALU_result;
 
-    EX_CCR_En <= ID_EX_CCR_En;
-    EX_RTI <= ID_EX_RTI;
-
-    process(EX_RTI)
-    begin
-        CCR_in <= (others => '0');
-        case EX_RTI is
-            when '0' =>
-                CCR_in <= CCR_updated;
-            when '1' =>
-                CCR_in <= CCR_reserved_sig;
-            when others => CCR_in <= CCR_updated;
-        end case;
-
-    end process;
-
-    CCR_inst: entity work.CCR_Reg
-        Port Map
-        (
-            clk         => clk,
-            CCR_OUT     => CCR_out_sig,
-            reset       => reset,
-            CCR_En      => EX_CCR_En,
-            CCR_IN      => CCR_in
-        );
-
-    CCR_Reserved: entity work.CCR_Reserved
-        Port Map(
-            clk => clk,
-            reset => reset,
-
-            Int_Jump_Sel => Int_Jump_Sel,
-
-            ccr_in => CCR_out_sig,
-            ccr_reserved => CCR_reserved_sig,
-
-            flags_saved => Flags_saved
-        );
-
-
     -- CCR update
-    CCR_we <= ID_EX_CCR_En;
+    --CCR_we <= ID_EX_CCR_En;
     
     CCR_TOP_inst: entity work.CCR_Top
         port map

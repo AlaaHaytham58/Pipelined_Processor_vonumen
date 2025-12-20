@@ -50,9 +50,9 @@ begin
         port map (
             clk          => clk,
             reset        => reset,
-            save_ccr     => int_j,
             ccr_in       => ccr_current,
-            ccr_reserved => ccr_saved
+            ccr_reserved => ccr_saved,
+            Int_Jump_Sel => int_j
         );
     
     ccr_out <= ccr_current;
