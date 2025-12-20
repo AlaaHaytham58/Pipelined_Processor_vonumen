@@ -76,7 +76,7 @@ BEGIN
     begin
         -- Initialize
         reset <= '1';
-        IN_PORT <= x"FFFFFFFF";  -- Test input for IN R0
+        IN_PORT <= x"000FFFFF";  -- Test input for IN R0
         wait for CLK_PERIOD * 2;
 
         -- Release reset

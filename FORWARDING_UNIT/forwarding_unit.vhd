@@ -26,27 +26,27 @@ begin
         ForwardB <= "00";
         
          --forwarding to ALU input A
-        if EX_MEM_RegWrite = '1' and (EX_MEM_Rdst /= "000") then
-            if EX_MEM_Rdst = ID_EX_Rsrc1 then
-                ForwardA <= "01";  
-            end if;
-            if EX_MEM_Rdst = ID_EX_Rsrc2 then
-                ForwardB <= "01";  
-            end if;
-        end if;
+        -- if EX_MEM_RegWrite = '1' and (EX_MEM_Rdst /= "000") then
+        --     if EX_MEM_Rdst = ID_EX_Rsrc1 then
+        --         ForwardA <= "01";  
+        --     end if;
+        --     if EX_MEM_Rdst = ID_EX_Rsrc2 then
+        --         ForwardB <= "01";  
+        --     end if;
+        -- end if;
         
-        -- MEM/WB forwarding to ALU input A (lower priority)
-        if MEM_WB_RegWrite = '1' and (MEM_WB_Rdst /= "000") then
-            if not(EX_MEM_RegWrite = '1' and (EX_MEM_Rdst /= "000") and (EX_MEM_Rdst = ID_EX_Rsrc1)) then
-                if MEM_WB_Rdst = ID_EX_Rsrc1 then
-                    ForwardA <= "10";  -- Forward from MEM/WB
-                end if;
-            end if;
-            if not(EX_MEM_RegWrite = '1' and (EX_MEM_Rdst /= "000") and (EX_MEM_Rdst = ID_EX_Rsrc2)) then
-                if MEM_WB_Rdst = ID_EX_Rsrc2 then
-                    ForwardB <= "10";  -- Forward from MEM/WB
-                end if;
-            end if;
-        end if;
+        -- -- MEM/WB forwarding to ALU input A (lower priority)
+        -- if MEM_WB_RegWrite = '1' and (MEM_WB_Rdst /= "000") then
+        --     if not(EX_MEM_RegWrite = '1' and (EX_MEM_Rdst /= "000") and (EX_MEM_Rdst = ID_EX_Rsrc1)) then
+        --         if MEM_WB_Rdst = ID_EX_Rsrc1 then
+        --             ForwardA <= "10";  -- Forward from MEM/WB
+        --         end if;
+        --     end if;
+        --     if not(EX_MEM_RegWrite = '1' and (EX_MEM_Rdst /= "000") and (EX_MEM_Rdst = ID_EX_Rsrc2)) then
+        --         if MEM_WB_Rdst = ID_EX_Rsrc2 then
+        --             ForwardB <= "10";  -- Forward from MEM/WB
+        --         end if;
+        --     end if;
+        -- end if;
     end process;
 end architecture forward_unit_arch;
