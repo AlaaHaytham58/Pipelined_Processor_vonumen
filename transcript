@@ -691,3 +691,5 @@ run
 #    Time: 0 ps  Iteration: 0  Instance: /processor_tb/UUT/Register_file_inst
 # ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
 #    Time: 0 ps  Iteration: 0  Instance: /processor_tb/UUT/Memory_inst
+# End time: 03:36:02 on Dec 20,2025, Elapsed time: 1:37:34
+# Errors: 0, Warnings: 2
