@@ -121,7 +121,7 @@ begin
  
     process (CLK, RST)
     begin
-        if RST = '1' then
+        if RST = '1' or (rising_edge(clk) and CLR = '1')then
             CCR_EN_Reg    <= '0';
             RTI_Reg       <= '0';
             INT_Jump_Reg  <= '0';

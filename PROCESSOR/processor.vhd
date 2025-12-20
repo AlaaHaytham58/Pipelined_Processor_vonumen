@@ -73,7 +73,7 @@ ARCHITECTURE processor_arch OF processor IS
     signal control_mux, insert_nop : std_logic;
 
     -- ID/EX Pipeline Register Signals
-    signal ID_EX_CCR_En, ID_EX_RTI, ID_EX_Int_Jump, ID_EX_Branch : std_logic;
+    signal ID_EX_Flush,ID_EX_CCR_En, ID_EX_RTI, ID_EX_Int_Jump, ID_EX_Branch : std_logic;
     signal ID_EX_Int_Idx, ID_EX_J_Type : std_logic_vector(1 downto 0);
     signal ID_EX_Mem_Write_En, ID_EX_Mem_Read_En, ID_EX_Stack_En : std_logic;
     signal ID_EX_PCsrc, ID_EX_Stack_Inc,ID_EX_Stack_Dec ,ID_EX_Mem_Op, ID_EX_ALU_A, ID_EX_ALU_B : std_logic;
@@ -105,7 +105,7 @@ ARCHITECTURE processor_arch OF processor IS
     signal EX_MEM_RegWrite, MEM_WB_RegWrite : std_logic;
 
     -- EX/MEM Pipeline Register Signals
-    signal EX_MEM_Mem_Write_En, EX_MEM_Mem_Read_En, EX_MEM_Stack_En,EX_MEM_Stack_Dec : std_logic;
+    signal EX_MEM_Flush,EX_MEM_Mem_Write_En, EX_MEM_Mem_Read_En, EX_MEM_Stack_En,EX_MEM_Stack_Dec : std_logic;
     signal EX_MEM_PCsrc, EX_MEM_WE1, EX_MEM_WE2, EX_MEM_OUT_En, EX_MEM_Stack_Inc : std_logic;
     signal EX_MEM_ALU_result, EX_MEM_Rdata1, EX_MEM_Rdata2 : std_logic_vector(31 downto 0);
     signal EX_MEM_Rdst, EX_MEM_Rsrc1, EX_MEM_Rsrc2 : std_logic_vector(2 downto 0);
@@ -146,7 +146,7 @@ BEGIN
             clk => clk,
             reset => reset,
             stall => PC_stall,
-            PCSrc => PCsrc,
+            PCSrc => EX_MEM_PCsrc,
             M0 => PC_Start_Addr,
             PC_out => PC_value,
             PC_branch => EX_MEM_BR_ADDR
@@ -266,12 +266,14 @@ BEGIN
             IF_ID_Rsrc1 => Rsrc1,
             IF_ID_Rsrc2 => Rsrc2,
             Branch => Branch_sig,
-            Jump => PCsrc,
+            Jump => EX_MEM_PCsrc,
             Mem_Op => EX_MEM_Mem_Op,
             PC_Write => PC_write_enable,
             IF_ID_Write => IF_ID_Write,
             Control_Mux => control_mux,
-            IF_ID_CLR => IF_ID_Flush
+            IF_ID_CLR => IF_ID_Flush,
+            ID_EX_CLR => ID_EX_Flush,
+            EX_MEM_CLR => EX_MEM_Flush
         );
 
     PC_stall <= not PC_write_enable;
@@ -284,7 +286,7 @@ BEGIN
             CLK => clk,
             RST => reset,
             EN => '1',
-            CLR => insert_nop,
+            CLR => ID_EX_Flush,
             CCR_EN => CCR_En,
             RTI => RTI_sig,
             INT_Jump => Int_Jump_Sel,
@@ -426,11 +428,8 @@ BEGIN
         );
     --CCR_in <= "111";
     -- Conditional Branch MUX
-    process(ID_EX_J_Type, CCR_in, ID_EX_imm, ID_EX_PCPlus4)
+    process(ID_EX_J_Type, CCR_in, ID_EX_Branch)
     begin
-        branch_taken <= '0';
-        jump_target <= (others => '0');
-
         case ID_EX_J_Type is
             when "00" =>  -- JZ
                 branch_taken <= CCR_in(0) and ID_EX_Branch;
@@ -449,7 +448,7 @@ BEGIN
     Int_Address <= x"0000000" & "00" & ID_EX_Int_Idx;
 
     -- Interrupt/Imm address selection
-    jump_target <= ID_EX_imm(31 downto 2) & "00" when ID_EX_Int_Jump = '0' else Int_Address;
+    jump_target <= ID_EX_imm when ID_EX_Int_Jump = '0' else Int_Address;
     Final_Branch_Adrr <= ID_EX_PCPlus4 when branch_taken = '0' else jump_target;
 
     -- ====== EX/MEM REGISTER ======
@@ -459,6 +458,7 @@ BEGIN
             CLK => clk,
             RST => reset,
             EN => '1',
+            CLR => EX_MEM_Flush,
             MemRead => ID_EX_Mem_Read_En,
             MEM_OP => ID_EX_Mem_Op,
             MEM_SEL => ID_EX_Mem_Addr_Sel,
@@ -481,7 +481,6 @@ BEGIN
             MEM_W => ID_EX_Mem_Write_En,
             Imm => ID_EX_imm,
             OUT_EN => ID_EX_OUT_En,
-            CLR => '0',
             PCPlus4 => ID_EX_PCPlus4,
             WB_Waddr_Sel => ID_EX_Waddr_Sel,
             WB_Wdata_Sel => ID_EX_Wdata_Sel,
@@ -495,7 +494,7 @@ BEGIN
             Raddr2_Out => EX_MEM_Rsrc2,
             Rdst_Out => EX_MEM_Rdst,
             PCPlus4_Out => EX_MEM_PCPlus4,
-            PCSRC_Out => open,
+            PCSRC_Out => EX_MEM_PCsrc,
             Stack_en_Out => EX_MEM_Stack_En,
             Stack_inc_Out => EX_MEM_Stack_Inc,
             Stack_dec_Out => EX_MEM_Stack_Dec,
