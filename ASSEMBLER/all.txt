@@ -1,0 +1,80 @@
+# all numbers in hex format
+# we always start by reset signal
+# this is a commented line
+# You should ignore empty lines
+
+# ---------- Don't forget to Reset before you start anything ---------- #
+
+.ORG 0x0
+10               # Reset Address (PC will start at 10)
+
+.ORG 0x2
+900              # HW Interrupt Handler Address
+
+.ORG 0x10       # ISR - Hardware Interrupt
+IN R7            # R7=5
+AND R0, R0, R0   # N=0, Z=1
+OUT R3
+RTI              # POP PC and flags restored
+IADD R1, R2, R3  # Infinite loop test point
+
+.ORG 0x20        # Main Program Start
+IN R1            # R1=30
+IN R2            # R2=50
+IN R3            # R3=100
+IN R4            # R4=300
+PUSH R4          # SP=FFE, M[FFF]=300
+JMP R1           # taken (Jumps to 30)
+INC R1           # should not be executed
+
+.ORG 0x30        # Flag Forwarding Check
+AND R5, R1, R5   # R5=0, Z=1
+JZ R2            # Jump taken (Jumps to 50)
+SETC             # should not be executed
+
+.ORG 0x50        # Flag updated on Jump check
+JZ R1            # should not be taken (R1 is non-zero)
+
+# Check on flag updated on ALU operations
+NOT R5           # R5=FFFFFFFF, Z=0, N=1
+SUB R7, R5, R5   # Z=1, N=0
+IN R1            # R1=60
+JZ R1            # jump taken (Jumps to 60)
+ADD R1, R2, R3   # should not be executed
+
+.ORG 0x60
+IN R1            # R1=70
+JZ R1            # jump not taken
+JMP R1           # jump taken (Jumps to 70)
+INC R1           # should not be executed
+
+.ORG 0x70        # Load Use / Stack Check
+IADD R1, R1, 10  # R1=80
+SUB R7, R1, R1   # Z=1, N=0
+PUSH R1          # SP=FFD, M[FFE]=80
+POP R1           # SP=FFE, R1=80
+JZ R1            # Taken (Jumps to 80)
+INC R1           # Hardware interrupt point
+
+.ORG 0x80        # Destination Forwarding
+IN R6            # R6=700
+JMP R6           # jump taken (Jumps to 700)
+
+.ORG 0x90
+ADD R7, R0, R1   # R7=80
+POP R6           # R6=300, SP=FFF
+CALL 300         # SP=FFE, M[FFF]=next PC
+INC R6           # R6=401, Executed after RET
+NOP
+NOP
+HLT
+
+.ORG 0x100
+ADD R6, R3, R6   # R6=400
+ADD R1, R1, R2   # R1=D0
+RET
+ADD R1, R1, R1   # should not be executed
+
+.ORG 0x150
+NOP
+NOP
