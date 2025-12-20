@@ -17,7 +17,7 @@ ENTITY processor IS
         PC_debug       : OUT std_logic_vector(31 downto 0);
         instruction_debug : OUT std_logic_vector(31 downto 0);
         ALU_result_debug : OUT std_logic_vector(31 downto 0);
-        CCR_debug       : OUT std_logic_vector(3 downto 0)
+        CCR_debug       : OUT std_logic_vector(2 downto 0)
     );
 END processor;
 
@@ -63,7 +63,7 @@ ARCHITECTURE processor_arch OF processor IS
     -- Mux for Raddr1 selection (based on Raddr_Sel)
     signal Raddr1_selected : std_logic_vector(2 downto 0);
     
-    signal CCR_in, CCR_out_sig : std_logic_vector(3 downto 0);
+    signal CCR_in, CCR_out_sig : std_logic_vector(2 downto 0);
     signal PC_we, SP_we, CCR_we : std_logic;
     
     -- Sign Extender Signals
@@ -93,7 +93,7 @@ ARCHITECTURE processor_arch OF processor IS
     signal ID_EX_Mem_Wdata_Sel : STD_LOGIC_VECTOR(1 downto 0);
     -- EX Stage Signals
     signal ALU_op1, ALU_op2, ALU_result : std_logic_vector(31 downto 0);
-    signal CCR_updated : std_logic_vector(3 downto 0);
+    signal CCR_updated, CCR_OUT : std_logic_vector(2 downto 0);
     signal branch_taken, jump_target_sel : std_logic;
     signal jump_target : std_logic_vector(31 downto 0);
     signal Int_Address, Final_Branch_Adrr : std_logic_vector(31 downto 0);
@@ -145,7 +145,7 @@ BEGIN
             reset => reset,
             stall => PC_stall,
             PCSrc => PCsrc,
-            M0 => RESET_VECTOR,
+            M0 => Mem_Read_Data,
             PC_out => PC_value,
             PC_branch => EX_MEM_BR_ADDR
         );
@@ -396,16 +396,31 @@ BEGIN
             op1 => ALU_op1,
             op2 => ALU_op2,
             alu_op => ID_EX_ALU_Op, 
+           
             alu_out => ALU_result,
-            ccr_in => "000",
-            ccr_out => CCR_updated(2 downto 0)
+            ccr_out =>  CCR_OUT,
+            ccr_update => CCR_updated
         );
     
+        
     ALU_result_debug <= ALU_result;
     
     -- CCR update
     CCR_we <= ID_EX_CCR_En;
     
+    CCR_TOP_inst: entity work.CCR_Top
+        port map
+        (
+            clk             => clk,
+            reset           => reset,
+            ccr_en          => ccr_en,
+            int_j           => ID_EX_Int_Jump,
+            RTI             => ID_EX_RTI,
+            alu_ccr         => CCR_OUT,
+            ccr_update      => CCR_updated,
+            ccr_out         => CCR_in
+        );
+    --CCR_in <= "111";
     -- Conditional Branch MUX
     process(ID_EX_J_Type, CCR_in, ID_EX_imm, ID_EX_PCPlus4)
     begin

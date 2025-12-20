@@ -8,6 +8,7 @@ entity CCR_Reg is
         reset     : in  std_logic;
         write_en  : in  std_logic;
         ccr_next  : in  std_logic_vector(2 downto 0);
+        ccr_update: in  std_logic_vector(2 downto 0);
         ccr_out   : out std_logic_vector(2 downto 0)
     );
 end entity;
@@ -21,7 +22,17 @@ begin
             ccr_reg <= (others => '0');
         elsif rising_edge(clk) then
             if write_en = '1' then
-                ccr_reg <= ccr_next;     -- from ALU or RTI mux maybe
+                if (ccr_update(0) = '1') then 
+                    ccr_reg(0) <= ccr_next(0);
+                end if;
+
+                if (ccr_update(1) = '1') then 
+                    ccr_reg(1) <= ccr_next(1);
+                end if;
+
+                if (ccr_update(2) = '1') then 
+                    ccr_reg(2) <= ccr_next(2);
+                end if;
             end if;
         end if;
     end process;

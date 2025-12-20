@@ -12,20 +12,6 @@ END processor_tb;
 
 ARCHITECTURE testbench OF processor_tb IS
     
-    COMPONENT processor IS
-        PORT(
-            clk       : IN std_logic;
-            reset     : IN std_logic;
-            IN_PORT   : IN std_logic_vector(31 downto 0);
-            OUT_PORT  : OUT std_logic_vector(31 downto 0);
-            INTR_IN   : IN std_logic;
-            PC_debug       : OUT std_logic_vector(31 downto 0);
-            instruction_debug : OUT std_logic_vector(31 downto 0);
-            ALU_result_debug : OUT std_logic_vector(31 downto 0);
-            CCR_debug       : OUT std_logic_vector(3 downto 0)
-        );
-    END COMPONENT;
-    
     -- Test signals
     signal clk : std_logic := '0';
     signal reset : std_logic := '1';
@@ -35,7 +21,7 @@ ARCHITECTURE testbench OF processor_tb IS
     signal PC_debug : std_logic_vector(31 downto 0);
     signal instruction_debug : std_logic_vector(31 downto 0);
     signal ALU_result_debug : std_logic_vector(31 downto 0);
-    signal CCR_debug : std_logic_vector(3 downto 0);
+    signal CCR_debug : std_logic_vector(2 downto 0);
     signal endoffile : bit := '0';
 
     signal  dataread : integer;
@@ -48,7 +34,7 @@ ARCHITECTURE testbench OF processor_tb IS
 BEGIN
     
     -- Instantiate the processor
-    UUT: processor
+    UUT: entity work.processor
         PORT MAP(
             clk => clk,
             reset => reset,

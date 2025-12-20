@@ -8,12 +8,11 @@ entity ALU is
         op1 : in  STD_LOGIC_VECTOR(31 downto 0);  -- First operand
         op2 : in  STD_LOGIC_VECTOR(31 downto 0);  -- Second operand
         alu_op   : in  STD_LOGIC_VECTOR(2 downto 0);   -- Operation select
-        ccr_in   : in  STD_LOGIC_VECTOR(2 downto 0);   -- (C, N, Z)
-
         -- Outputs
         alu_out  : out STD_LOGIC_VECTOR(31 downto 0);  -- ALU result
-        ccr_out  : out STD_LOGIC_VECTOR(2 downto 0)    -- (C, N, Z)
-
+        
+        ccr_out  : out STD_LOGIC_VECTOR(2 downto 0);    -- (C, N, Z)
+        ccr_update    : out  std_logic_vector(2 downto 0)  -- Flags of z,c,n to
     );
 end ALU;
 
@@ -134,19 +133,7 @@ architecture Behavioral of ALU is
             end case;
         end process;
 
-        alu_out <= unsigned_result;
-
-        process(ccr_in, cf, nf, zf, update_flags)
-        variable new_ccr : STD_LOGIC_VECTOR(2 downto 0);
-        begin
-            new_ccr := ccr_in; -- Default: Hold the current value
-
-            if update_flags(2) = '1' then new_ccr(2) := cf; end if; -- C
-            if update_flags(1) = '1' then new_ccr(1) := nf; end if; -- N
-            if update_flags(0) = '1' then new_ccr(0) := zf; end if; -- Z
-
-            ccr_out <= new_ccr;
-        end process;
-
-
+        alu_out    <= unsigned_result;
+        ccr_update <= update_flags;
+        ccr_out    <= cf & nf & zf;
 end architecture;

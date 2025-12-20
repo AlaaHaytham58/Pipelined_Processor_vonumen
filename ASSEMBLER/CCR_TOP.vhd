@@ -5,14 +5,12 @@ entity CCR_Top is
     port (
         clk          : in  std_logic;
         reset        : in  std_logic;
-        write_en     : in  std_logic;
-        save_ccr     : in  std_logic;
+        ccr_en       : in  std_logic;
+        int_j        : in  std_logic;
         RTI          : in  std_logic;
         alu_ccr      : in  std_logic_vector(2 downto 0);
-
-        ccr_out      : out std_logic_vector(2 downto 0);
-        ccr_reserved : out std_logic_vector(2 downto 0); -- 👈 expose
-        flags_saved  : out std_logic
+        ccr_update   : in  std_logic_vector(2 downto 0);  -- Flags of z,c,n to
+        ccr_out      : out std_logic_vector(2 downto 0)
     );
 end entity;
 
@@ -39,7 +37,8 @@ begin
         port map (
             clk      => clk,
             reset    => reset,
-            write_en => write_en,
+            write_en => ccr_en,
+            ccr_update => ccr_update,
             ccr_next => ccr_next,
             ccr_out  => ccr_current
         );
@@ -51,14 +50,11 @@ begin
         port map (
             clk          => clk,
             reset        => reset,
-            save_ccr     => save_ccr,
-            RTI          => RTI,
+            save_ccr     => int_j,
             ccr_in       => ccr_current,
-            ccr_reserved => ccr_saved,
-            flags_saved  => flags_saved
+            ccr_reserved => ccr_saved
         );
     
-    ccr_reserved <= ccr_saved;
     ccr_out <= ccr_current;
 
 end architecture;
