@@ -106,8 +106,8 @@ class Assembler:
             elif op in ['NOT', 'INC', 'PUSH', 'POP']:
                 rdst = self.reg(parts[0])
             elif op in ['MOV', 'SWAP']:
-                rdst = self.reg(parts[0])
-                rsrc1 = self.reg(parts[1])
+                rsrc1 = self.reg(parts[0])
+                rsrc2 = self.reg(parts[1])
             elif op in ['JZ', 'JN', 'JC', 'JMP', 'CALL']:
                 if parts and parts[0].upper().startswith('R'):
                     rsrc1 = self.reg(parts[0])

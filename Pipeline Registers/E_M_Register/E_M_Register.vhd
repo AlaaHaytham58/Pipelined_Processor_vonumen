@@ -33,7 +33,8 @@ entity E_M_Register is
         PCPlus4       : in STD_LOGIC_VECTOR(31 downto 0);
         WB_Wdata_Sel  : in STD_LOGIC_VECTOR(2 downto 0);
         WB_Waddr_Sel  : in STD_LOGIC_VECTOR(1 downto 0);
-        
+        HLT : in std_logic;
+        HLT_out: out std_logic;
         -- Outputs
         MemRead_Out   : out STD_LOGIC;
         MEM_OP_Out    : out STD_LOGIC;
@@ -90,12 +91,14 @@ architecture Behavioral of E_M_Register is
         signal OUT_EN_Reg    : STD_LOGIC := '0';
         signal WB_Wdata_Sel_Reg: STD_LOGIC_VECTOR(2 downto 0);
         signal WB_Waddr_Sel_Reg: STD_LOGIC_VECTOR(1 downto 0);
+        signal HLT_Reg: std_logic;
 
 begin
     -- Register inputs on rising edge
     process (CLK, RST)
     begin
         if RST = '1' or (rising_edge(CLK) and CLR = '1')then
+            HLT_Reg <= '0';
             MemRead_Reg   <= '0';
             MEM_OP_Reg    <= '0';
             MEM_SEL_Reg   <= "00";
@@ -123,6 +126,7 @@ begin
             WB_Waddr_Sel_Reg <= "00";
         elsif rising_edge(CLK) then
             if EN = '1' then
+                HLT_Reg <= '0';
                 MemRead_Reg   <= MemRead;
                 MEM_OP_Reg    <= MEM_OP;
                 MEM_SEL_Reg   <= MEM_SEL;
@@ -153,6 +157,7 @@ begin
     end process;
 
     -- Combinational outputs (continuous assignments)
+    HLT_out <= HLT_Reg;
     MemRead_Out   <=  MemRead_Reg;
     MEM_OP_Out    <=  MEM_OP_Reg;
     MEM_SEL_Out   <=  MEM_SEL_Reg;

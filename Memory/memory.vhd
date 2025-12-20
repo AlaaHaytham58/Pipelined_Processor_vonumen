@@ -29,7 +29,7 @@ architecture ARCH_Memory of Memory is
 		FILE MEMORY_FILE: TEXT;
     BEGIN
         -- OPEN FILE
-        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/two_opreand.mem",  READ_MODE);
+        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/one_operand.mem",  READ_MODE);
 
         -- READ FIRST 32 BITS OF STARTING ADDRESS
         READLINE(MEMORY_FILE, TEXT_LINE);
@@ -51,7 +51,7 @@ architecture ARCH_Memory of Memory is
 		FILE MEMORY_FILE: TEXT;
     BEGIN
        -- OPEN FILE
-        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/two_opreand.mem",  READ_MODE);
+        FILE_OPEN(MEMORY_FILE, "ASSEMBLER/one_operand.mem",  READ_MODE);
 
         COUNT := 0;
 
@@ -71,7 +71,7 @@ architecture ARCH_Memory of Memory is
     signal mem : memory_array := FILL_MEMORY;
 begin
     -- read for data memory
-    Read_data <= mem(to_integer(unsigned(Mem_Addr)));
+    
 
     RST_Addr <= mem(0);
 
@@ -79,11 +79,15 @@ begin
     -- write
     process(clk, reset)
     begin
-        if rising_edge(clk) then
+        if falling_edge(clk) then
             if reset = '1' then
                 -- leave it in case we use  it later
-            elsif Mem_write = '1' then
-                mem(to_integer(unsigned(Mem_Addr))) <= Write_data;
+                Read_data <= (others => '0');
+            else
+                if Mem_write = '1' then
+                    mem(to_integer(unsigned(Mem_Addr))) <= Write_data;
+                end if;
+                Read_data <= mem(to_integer(unsigned(Mem_Addr)));
             end if;
         end if;
     end process;

@@ -32,5 +32,6 @@ BEGIN
                 registers(to_integer(unsigned(Waddr2))) <= Wdata2;
             end if;
         end if;
+        
     end process;
 END Register_file_arch;

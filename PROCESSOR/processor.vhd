@@ -133,7 +133,8 @@ ARCHITECTURE processor_arch OF processor IS
     signal MEM_WB_IN_PORT : std_logic_vector(31 downto 0);
     signal MEM_WB_Wdata_Sel : std_logic_vector(2 downto 0);
     signal MEM_WB_Waddr_Sel : std_logic_vector(1 downto 0);
-
+    signal ID_EX_HLT, EX_MEM_HLT, MEM_WB_HLT: std_logic;
+    signal HLT1,HLT2,HLT3,HLT4: std_logic;
 
     -- WB Stage Signals
     signal WB_Write_Data, WB_Write_Addr : std_logic_vector(31 downto 0);
@@ -173,9 +174,10 @@ BEGIN
 
     -- ====== IF/ID REGISTER ======
 
+    HLT1 <= clk and (not HLT_sig);
     F_D_Register_inst: entity work.F_D_Register
         Port Map(
-            CLK => clk,
+            CLK => HLT1,
             RST => reset,
             EN => IF_ID_Write,
             CLR => IF_ID_Flush,
@@ -283,11 +285,13 @@ BEGIN
 
     -- ====== ID/EX REGISTER ======
 
+    HLT2 <= Clk and (not ID_EX_HLT);
     D_E_Register_inst: entity work.D_E_Register
         Port Map(
-            CLK => clk,
+            CLK => HLT2, 
             RST => reset,
             EN => '1',
+            HLT => HLT_sig,
             CLR => ID_EX_Flush,
             CCR_EN => CCR_En,
             RTI => RTI_sig,
@@ -352,7 +356,8 @@ BEGIN
             IN_Out => ID_EX_IN_PORT,
             ALU_B_Out => ID_EX_ALU_B,
             WB_Waddr_Sel_Out => ID_EX_Waddr_Sel,
-            WB_Wdata_Sel_Out => ID_EX_Wdata_Sel
+            WB_Wdata_Sel_Out => ID_EX_Wdata_Sel,
+            HLT_Out => ID_EX_HLT
         );
 
     -- ====== EXECUTE ======
@@ -456,13 +461,15 @@ BEGIN
     Final_Branch_Adrr <= ID_EX_PCPlus4 when branch_taken = '0' else jump_target;
 
     -- ====== EX/MEM REGISTER ======
-
+    
+    HLT3 <=  clk  and (not EX_MEM_HLT);
     E_M_Register_inst: entity work.E_M_Register
         Port Map(
-            CLK => clk,
+            CLK => HLT3,
             RST => reset,
             EN => '1',
             CLR => EX_MEM_Flush,
+            HLT => ID_EX_HLT,
             MemRead => ID_EX_Mem_Read_En,
             MEM_OP => ID_EX_Mem_Op,
             MEM_SEL => ID_EX_Mem_Addr_Sel,
@@ -489,6 +496,7 @@ BEGIN
             WB_Waddr_Sel => ID_EX_Waddr_Sel,
             WB_Wdata_Sel => ID_EX_Wdata_Sel,
 
+            HLT_Out => EX_MEM_HLT,
             MemRead_Out => EX_MEM_Mem_Read_En,
             MEM_OP_Out => EX_MEM_Mem_Op,
             MEM_SEL_Out => EX_MEM_Mem_Addr_Sel,
@@ -557,11 +565,13 @@ STACK_inst: entity work.STACK
 
     -- ====== MEM/WB PIPELINE REGISTER ======
 
+    HLT4 <= clk and (not MEM_WB_HLT);
     M_W_Register_inst: entity work.M_W_Register
         Port Map(
-            CLK => clk,
+            CLK => HLT4,
             RST => reset,
             EN => '1',
+            HLT => EX_MEM_HLT,
             ALURes => EX_MEM_ALU_result,
             Raddr1 => EX_MEM_Rsrc1,
             Raddr2 => EX_MEM_Rsrc2,
@@ -579,6 +589,7 @@ STACK_inst: entity work.STACK
             WB_Waddr_Sel => EX_MEM_Waddr_Sel,
             WB_Wdata_Sel => EX_MEM_Wdata_Sel,
 
+            HLT_out => MEM_WB_HLT,
             ALURes_Out => MEM_WB_ALU_result,
             Raddr1_Out => MEM_WB_Rsrc1,
             Raddr2_Out => MEM_WB_Rsrc2,

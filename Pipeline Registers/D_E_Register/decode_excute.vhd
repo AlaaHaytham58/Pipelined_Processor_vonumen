@@ -77,11 +77,14 @@ entity D_E_Register is
         IN_Out        : out STD_LOGIC_VECTOR(31 downto 0);
         ALU_B_Out     : out STD_LOGIC;
         WB_Wdata_Sel_Out  : out STD_LOGIC_VECTOR(2 downto 0);
-        WB_Waddr_Sel_Out  : out STD_LOGIC_VECTOR(1 downto 0)
+        WB_Waddr_Sel_Out  : out STD_LOGIC_VECTOR(1 downto 0);
+        HLT :in STD_LOGIC;
+        HLT_out :out STD_LOGIC
     );
 end D_E_Register;
 architecture D_E_ARCH of D_E_Register is
 
+    signal HLT_Reg : STD_LOGIC := '0';
     signal CCR_EN_Reg     : STD_LOGIC := '0';
     signal RTI_Reg        : STD_LOGIC := '0';
     signal INT_Jump_Reg   : STD_LOGIC := '0';
@@ -122,6 +125,7 @@ begin
     process (CLK, RST)
     begin
         if RST = '1' or (rising_edge(clk) and CLR = '1')then
+            HLT_Reg  <= '0';
             CCR_EN_Reg    <= '0';
             RTI_Reg       <= '0';
             INT_Jump_Reg  <= '0';
@@ -191,13 +195,14 @@ begin
                 ALU_B_Reg   <= ALU_B;
                 WB_Wdata_Sel_Reg <= WB_Wdata_Sel;
                 WB_Waddr_Sel_Reg <= WB_Waddr_Sel;
+                HLT_Reg <= HLT;
             end if;
         end if;
     end process;
 
     -- 
     -- flush
-    
+    HLT_out <= HLT_Reg;
     CCR_EN_Out    <=  CCR_EN_Reg;
     RTI_Out       <=  RTI_Reg;
     INT_Jump_Out  <=  INT_Jump_Reg;

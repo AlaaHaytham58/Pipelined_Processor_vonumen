@@ -144,6 +144,7 @@ BEGIN
                                 WB_Wdata_Sel <= "110";
                             elsif (opcode(2 downto 0) = "101") then
                                 WB_Wdata_Sel <= "010";
+                                WB_Wadrr_Sel <= "01";
                             else
                                 WB_Wdata_Sel <= "001";
                             end if;

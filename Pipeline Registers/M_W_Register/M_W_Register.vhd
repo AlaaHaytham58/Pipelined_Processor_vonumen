@@ -23,7 +23,8 @@ entity M_W_Register is
         CLR           : in STD_LOGIC; 
         WB_Wdata_Sel  : in STD_LOGIC_VECTOR(2 downto 0);
         WB_Waddr_Sel  : in STD_LOGIC_VECTOR(1 downto 0);
-        
+        HLT : in std_logic;
+        HLT_Out: out std_logic;
         -- Outputs;
         ALURes_Out    : out STD_LOGIC_VECTOR(31 downto 0);
         Raddr1_Out    : out STD_LOGIC_VECTOR(2 downto 0);
@@ -60,6 +61,7 @@ architecture Behavioral of M_W_Register is
         signal OUT_EN_Reg    : STD_LOGIC := '0';
         signal WB_Wdata_Sel_Reg: STD_LOGIC_VECTOR(2 downto 0);
         signal WB_Waddr_Sel_Reg: STD_LOGIC_VECTOR(1 downto 0);
+        signal HLT_Reg: std_logic;
 begin
     -- Register inputs on rising edge
     process (CLK, RST)
@@ -80,6 +82,7 @@ begin
             OUT_EN_Reg    <= '0';
             WB_Wdata_Sel_Reg <= "000";
             WB_Waddr_Sel_Reg <= "00";
+            HLT_Reg <= '0';
         elsif rising_edge(CLK) then
             if EN = '1' then
                 ALURes_Reg    <= ALURes;
@@ -97,11 +100,13 @@ begin
                 OUT_EN_Reg    <= OUT_EN;
                 WB_Wdata_Sel_Reg <= WB_Wdata_Sel;
                 WB_Waddr_Sel_Reg <= WB_Waddr_Sel;
+                HLT_Reg <= HLT;
             end if;
         end if;
     end process;
 
     -- Combinational outputs (continuous assignments)
+    HLT_Out <= HLT_Reg;
     ALURes_Out    <= ALURes_Reg;
     Raddr1_Out    <= Raddr1_Reg;
     Raddr2_Out    <= Raddr2_Reg;
